@@ -1,0 +1,27 @@
+# cloudlab config
+ 
+Host n1
+    User sohamb
+    IdentityFile /home/soham/.ssh/id_cs6530_group4
+    HostName apt085.apt.emulab.net
+ 
+Host n2
+    User sohamb
+    IdentityFile /home/soham/.ssh/id_cs6530_group4
+    HostName apt078.apt.emulab.net
+ 
+Host n3
+    User sohamb
+    IdentityFile /home/soham/.ssh/id_cs6530_group4
+    HostName apt079.apt.emulab.net
+ 
+Host n4
+    User sohamb
+    IdentityFile /home/soham/.ssh/id_cs6530_group4
+    HostName apt070.apt.emulab.net
+ 
+Host n5
+    User sohamb
+    IdentityFile /home/soham/.ssh/id_cs6530_group4
+    HostName apt092.apt.emulab.net
+ 

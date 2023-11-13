@@ -19,25 +19,12 @@ ORDERED_HOST_NAMES=(
 # set once
 CLOUDLAB_USERNAME="sohamb"
 SSH_CONFIG="/home/soham/.ssh/config"
-CLOUDLAB_SSHKEY_FILE="${HOME}/.ssh/id_ed25519"
+# CLOUDLAB_SSHKEY_FILE="${HOME}/.ssh/id_ed25519"
 
 CLOUDLAB_SSHKEY_FILE="${HOME}/.ssh/id_cs6530_group4"
 CLOUDLAB_SSHKEY_PUB_FILE="${HOME}/.ssh/id_cs6530_group4.pub"
 
-# print a string to a file
-echo "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKE9bjM+SPFsliOjd4yY16EVvO/IkzxChHF0RF0HIh35 group4@utah.edu" > ${CLOUDLAB_SSHKEY_PUB_FILE}
-
-# print multiple strings to a file, one after the other
-echo "-----BEGIN OPENSSH PRIVATE KEY-----" >> ${CLOUDLAB_SSHKEY_FILE}
-echo "b3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAAAMwAAAAtzc2gtZW" >> ${CLOUDLAB_SSHKEY_FILE}
-echo "QyNTUxOQAAACChPW4zPkjxbJYjo3eMmNehFbzvyJM8QoRxdERdById+QAAAJjOzzt3zs87" >> ${CLOUDLAB_SSHKEY_FILE}
-echo "dwAAAAtzc2gtZWQyNTUxOQAAACChPW4zPkjxbJYjo3eMmNehFbzvyJM8QoRxdERdById+Q" >> ${CLOUDLAB_SSHKEY_FILE}
-echo "AAAEAQQ9kF7C6YSq937bnIXm9ubZF5sLKSEh00z9vK+Be3e6E9bjM+SPFsliOjd4yY16EV" >> ${CLOUDLAB_SSHKEY_FILE}
-echo "vO/IkzxChHF0RF0HIh35AAAAD2dyb3VwNEB1dGFoLmVkdQECAwQFBg==" >> ${CLOUDLAB_SSHKEY_FILE}
-echo "-----END OPENSSH PRIVATE KEY-----" >> ${CLOUDLAB_SSHKEY_FILE}
-
-eval "$(ssh-agent -s)"
-ssh-add ${CLOUDLAB_SSHKEY_FILE}
+source init-ssh-keys.sh
 
 SSH_PREFIX="n"
 CONFIG_NAME="cloudlab_ssh_config"
