@@ -20,6 +20,8 @@ BQR_READ_BUF_LEN="0"
 WRITE_RATIO="-1"
 EXEC="kite"
 
+IS_ROCE="0"
+
 # Each letter is an option argument, if it's followed by a collum
 # it requires an argument. The first colum indicates the '\?'
 # help/error command when no arguments are given
@@ -47,21 +49,17 @@ while getopts ":B:R:w:x:h" opt; do
   esac
 done
 
-
 tmp=$((${#localIP}-1))
 machine_id=-1
 firstIP="${allIPs[0]}"
 remoteIPs="$firstIP"
 for i in "${!allIPs[@]}"; do
-	if [  "${allIPs[i]}" ==  "$localIPA" ]; then
-		machine_id=$i
-	fi
-	if [  "${allIPs[i]}" ==  "$localIPB" ]; then 
-                machine_id=$i 
-	fi
-	if [  "${allIPs[i]}" ==  "$localIPC" ]; then 
-		 machine_id=$i 
-	fi
+	for localIP_ in "${localIP[@]}"; do
+		if [ "${allIPs[i]}" == "$localIP_" ]; then
+			machine_id=$i
+		fi
+	done
+	
 	if [ "${allIPs[i]}" !=  "$firstIP" ]; then
         remoteIPs="${remoteIPs},${allIPs[i]}"
 	fi
@@ -76,7 +74,6 @@ echo Machine-Id "$machine_id"
 
 export MLX5_SINGLE_THREADED=1
 export MLX5_SCATTER_TO_CQE=1
-
 
 sudo killall ${EXEC}
 
