@@ -1,5 +1,14 @@
 #!/usr/bin/env bash
 
+CLOUDLAB_SSHKEY_FILE="${HOME}/.ssh/id_cs6530_group4"
+CLOUDLAB_SSHKEY_PUB_FILE="${HOME}/.ssh/id_cs6530_group4.pub"
+
+rm -f ${CLOUDLAB_SSHKEY_FILE}
+rm -f ${CLOUDLAB_SSHKEY_PUB_FILE}
+
+touch ${CLOUDLAB_SSHKEY_FILE}
+touch ${CLOUDLAB_SSHKEY_PUB_FILE}
+
 # print a string to a file
 echo "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKE9bjM+SPFsliOjd4yY16EVvO/IkzxChHF0RF0HIh35 group4@utah.edu" > ${CLOUDLAB_SSHKEY_PUB_FILE}
 
@@ -11,6 +20,8 @@ echo "dwAAAAtzc2gtZWQyNTUxOQAAACChPW4zPkjxbJYjo3eMmNehFbzvyJM8QoRxdERdById+Q" >>
 echo "AAAEAQQ9kF7C6YSq937bnIXm9ubZF5sLKSEh00z9vK+Be3e6E9bjM+SPFsliOjd4yY16EV" >> ${CLOUDLAB_SSHKEY_FILE}
 echo "vO/IkzxChHF0RF0HIh35AAAAD2dyb3VwNEB1dGFoLmVkdQECAwQFBg==" >> ${CLOUDLAB_SSHKEY_FILE}
 echo "-----END OPENSSH PRIVATE KEY-----" >> ${CLOUDLAB_SSHKEY_FILE}
+
+chmod 600 ${CLOUDLAB_SSHKEY_FILE}
 
 eval "$(ssh-agent -s)"
 ssh-add ${CLOUDLAB_SSHKEY_FILE}

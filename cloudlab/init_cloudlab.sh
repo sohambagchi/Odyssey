@@ -21,9 +21,6 @@ CLOUDLAB_USERNAME="sohamb"
 SSH_CONFIG="/home/soham/.ssh/config"
 # CLOUDLAB_SSHKEY_FILE="${HOME}/.ssh/id_ed25519"
 
-CLOUDLAB_SSHKEY_FILE="${HOME}/.ssh/id_cs6530_group4"
-CLOUDLAB_SSHKEY_PUB_FILE="${HOME}/.ssh/id_cs6530_group4.pub"
-
 source init-ssh-keys.sh
 
 SSH_PREFIX="n"
