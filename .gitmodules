@@ -27,3 +27,6 @@
 [submodule "paxos"]
 	path = paxos
 	url = git@github.com:vasigavr1/Paxos.git
+[submodule "splinterdb"]
+	path = splinterdb
+	url = https://github.com/vmware/splinterdb.git
