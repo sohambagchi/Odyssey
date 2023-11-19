@@ -67,6 +67,14 @@ else
   exit 1
 fi
 
+# Mount /dev/sdb2 as an ext4 directory
+sudo mkfs.ext4 /dev/sdb # Format
+sudo mkdir -p /mnt/ext4 # Make mount point directory
+sudo mount /dev/sdb /mnt/mydisk # Mount it
+UUID=$(sudo blkid /dev/sdb | grep -oP 'UUID="\K[^"]+') # Get the device UUID
+echo "UUID=$UUID /mnt/mydisk ext4 defaults 0 2" | sudo tee -a /etc/fstab # Append it to FSTAB so it persists
+
+
 # [Optionally] For dbg ensure everything was configured properly
 #ibdev2netdev # --> must show ib0 (up)
 #ifconfig --> expected ib0 w/ expected ip
