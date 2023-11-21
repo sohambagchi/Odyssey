@@ -6,8 +6,8 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "../include/splinterdb/default_data_config.h"
-#include "../include/splinterdb/splinterdb.h"
+#include "default_data_config.h"
+#include "splinterdb.h"
 
 #define DB_FILE_NAME    "splinterdb_intro_db"
 #define USER_MAX_KEY_SIZE ((int)100)
