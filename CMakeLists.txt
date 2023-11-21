@@ -26,7 +26,9 @@ set(COMMON_INCLUDE_DIRS
         odlib/include/network_api
         odlib/include/client_api
         odlib/include/trace
-        odlib/include/protocols
+        odlib/include/protocols)
+
+set (SPLINTERDB_INCLUDE_DIRS
         splinterdb/include/splinterdb
         splinterdb/include/splinterdb/platform_linux)
 
@@ -201,7 +203,7 @@ set(CRAQ_SOURCE_FILES
         craq/include/craq/cr_generic_util.h
         craq/include/craq/cr_kvs_util.h)
 
-add_library(splinterdb SHARED IMPORTED)
+add_library(splinterdb SHARED IMPORTED )
 set_target_properties(splinterdb PROPERTIES IMPORTED_LOCATION splinterdb/build/release/lib/libsplinterdb.so)
 
 #set(CMAKE_BUILD_TYPE Release)
@@ -221,13 +223,14 @@ target_include_directories(kite PUBLIC
 target_include_directories(zookeeper PUBLIC
         ${COMMON_INCLUDE_DIRS} zookeeper/include/zookeeper)
 target_include_directories(hermes PUBLIC
-        ${COMMON_INCLUDE_DIRS} hermes/include/hermes)
+        ${COMMON_INCLUDE_DIRS} ${SPLINTERDB_INCLUDE_DIRS} hermes/include/hermes)
 target_include_directories(cht PUBLIC
         ${COMMON_INCLUDE_DIRS} cht/include/cht)
 target_include_directories(craq PUBLIC
         ${COMMON_INCLUDE_DIRS} craq/include/craq)
 target_include_directories(paxos PUBLIC
         ${COMMON_INCLUDE_DIRS} ${PAXOS_INCLUDE_DIRS})
+target_include_directories(splinterdb INTERFACE ${SPLINTERDB_INCLUDE_DIRS})
 
 set_target_properties(derecho PROPERTIES COMPILE_FLAGS -DDERECHO)
 set_target_properties(kite PROPERTIES COMPILE_FLAGS -DKITE )
@@ -242,7 +245,7 @@ set_target_properties(splinterdb PROPERTIES IMPORTED_LOCATION splinterdb/build/r
 target_link_libraries(derecho pthread ibverbs rt numa rdmacm)
 target_link_libraries(kite pthread ibverbs rt numa rdmacm)
 target_link_libraries(zookeeper pthread ibverbs rt numa rdmacm)
-target_link_libraries(hermes pthread ibverbs rt numa rdmacm splinterdb/build/release/lib/libsplinterdb.so)
+target_link_libraries(hermes pthread ibverbs rt numa rdmacm splinterdb)
 target_link_libraries(cht pthread ibverbs rt numa rdmacm)
 target_link_libraries(craq pthread ibverbs rt numa rdmacm)
 target_link_libraries(paxos pthread ibverbs rt numa rdmacm)
