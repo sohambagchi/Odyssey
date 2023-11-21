@@ -26,7 +26,9 @@ set(COMMON_INCLUDE_DIRS
         odlib/include/network_api
         odlib/include/client_api
         odlib/include/trace
-        odlib/include/protocols)
+        odlib/include/protocols
+        splinterdb/include/splinterdb
+        splinterdb/include/splinterdb/platform_linux)
 
 set (PAXOS_INCLUDE_DIRS
         paxos/include/cp_top/
@@ -199,6 +201,8 @@ set(CRAQ_SOURCE_FILES
         craq/include/craq/cr_generic_util.h
         craq/include/craq/cr_kvs_util.h)
 
+add_library(splinterdb SHARED IMPORTED)
+set_target_properties(splinterdb PROPERTIES IMPORTED_LOCATION splinterdb/build/release/lib/libsplinterdb.so)
 
 #set(CMAKE_BUILD_TYPE Release)
 
@@ -224,6 +228,8 @@ target_include_directories(craq PUBLIC
         ${COMMON_INCLUDE_DIRS} craq/include/craq)
 target_include_directories(paxos PUBLIC
         ${COMMON_INCLUDE_DIRS} ${PAXOS_INCLUDE_DIRS})
+target_include_directories(splinterdb PUBLIC
+        ${COMMON_INCLUDE_DIRS})
 
 set_target_properties(derecho PROPERTIES COMPILE_FLAGS -DDERECHO)
 set_target_properties(kite PROPERTIES COMPILE_FLAGS -DKITE )
@@ -232,12 +238,13 @@ set_target_properties(hermes PROPERTIES COMPILE_FLAGS -DHERMES)
 set_target_properties(cht PROPERTIES COMPILE_FLAGS -DCHT)
 set_target_properties(craq PROPERTIES COMPILE_FLAGS -DCRAQ)
 set_target_properties(paxos PROPERTIES COMPILE_FLAGS -DPAXOS)
+set_target_properties(splinterdb PROPERTIES IMPORTED_LOCATION /splinterdb/build/release/lib/libsplinterdb.so)
 
 
 target_link_libraries(derecho pthread ibverbs rt numa rdmacm)
 target_link_libraries(kite pthread ibverbs rt numa rdmacm)
 target_link_libraries(zookeeper pthread ibverbs rt numa rdmacm)
-target_link_libraries(hermes pthread ibverbs rt numa rdmacm)
+target_link_libraries(hermes pthread ibverbs rt numa rdmacm /splinterdb/build/release/lib/libsplinterdb.so)
 target_link_libraries(cht pthread ibverbs rt numa rdmacm)
 target_link_libraries(craq pthread ibverbs rt numa rdmacm)
 target_link_libraries(paxos pthread ibverbs rt numa rdmacm)
