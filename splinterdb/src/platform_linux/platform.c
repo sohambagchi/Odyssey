@@ -4,6 +4,7 @@
 #include <stdarg.h>
 #include <unistd.h>
 #include <sys/mman.h>
+#include <sys/syscall.h>
 #include "platform.h"
 #include "shmem.h"
 
@@ -661,7 +662,7 @@ platform_assert_msg(platform_log_handle *log_handle,
    platform_log(log_handle,
                 assert_msg_fmt,
                 getpid(),
-                gettid(),
+                syscall(SYS_gettid),
                 platform_get_tid(), // SplinterDB's thread-ID (index)
                 filename,
                 linenumber,
