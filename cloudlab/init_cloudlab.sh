@@ -6,10 +6,10 @@
     # (instantiates a memcached to setup RDMA connections)
 ORDERED_HOST_NAMES=(
   "apt085.apt.emulab.net"
-  "apt078.apt.emulab.net"
-  "apt079.apt.emulab.net"
+  "apt090.apt.emulab.net"
+  "apt069.apt.emulab.net"
+  "apt080.apt.emulab.net"
   "apt070.apt.emulab.net"
-  "apt092.apt.emulab.net"
 )
 
 # Include cloudlab_ssh_config in ssh

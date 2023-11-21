@@ -43,7 +43,7 @@ cd
 git clone https://github.com/sohambagchi/Odyssey odyssey
 # cd odyssey ; git submodule update --init ; cd
 # tar -xvf ${ARCHIVE_NAME}
-cd odyssey ; ./bin/install-latest-cmake.sh ; cmake -B build
+cd odyssey ; sh ./bin/install-latest-cmake.sh ; cmake -B build
 # TODO ALSO copy and run install-latest-cmake.sh in n1 and then run the following
 #  cd odyssey; cmake -B build
 
@@ -67,10 +67,13 @@ else
   exit 1
 fi
 
+sleep 5
+
 # Mount /dev/sdb2 as an ext4 directory
 sudo mkfs.ext4 /dev/sdb # Format
-sudo mkdir -p /mnt/ext4 # Make mount point directory
+sudo mkdir -p /mnt/mydisk # Make mount point directory
 sudo mount /dev/sdb /mnt/mydisk # Mount it
+sudo chown -R sohamb:sohamb /mnt/mydisk
 UUID=$(sudo blkid /dev/sdb | grep -oP 'UUID="\K[^"]+') # Get the device UUID
 echo "UUID=$UUID /mnt/mydisk ext4 defaults 0 2" | sudo tee -a /etc/fstab # Append it to FSTAB so it persists
 
