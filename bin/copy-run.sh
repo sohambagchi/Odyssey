@@ -43,7 +43,7 @@ while getopts ":B:R:w:x:h" opt; do
       ;;
   esac
 done
-
+echo ${OD_HOME}
 MAKE_FOLDER="${OD_HOME}/build"
 SCRIPT_FOLDER="${OD_HOME}/bin"
 DEST_FOLDER=$MAKE_FOLDER

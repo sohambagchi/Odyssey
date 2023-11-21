@@ -26,7 +26,7 @@ if [ $SETUP == $INFORMATICS ]; then
   IS_ROCE=1
 else
   echo "cloudlab"
-  OD_HOME="/users/sohamb/odyssey"
+  OD_HOME="/mnt/mydisk/Odyssey"
 
   HOSTS=(
     10.0.3.1
