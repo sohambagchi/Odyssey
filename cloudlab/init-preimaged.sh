@@ -73,7 +73,7 @@ sleep 5
 sudo mkfs.ext4 /dev/sdb # Format
 sudo mkdir -p /mnt/mydisk # Make mount point directory
 sudo mount /dev/sdb /mnt/mydisk # Mount it
-sudo chown -R sohamb:sohamb /mnt/mydisk
+sudo chown -R sohamb /mnt/mydisk
 UUID=$(sudo blkid /dev/sdb | grep -oP 'UUID="\K[^"]+') # Get the device UUID
 echo "UUID=$UUID /mnt/mydisk ext4 defaults 0 2" | sudo tee -a /etc/fstab # Append it to FSTAB so it persists
 
