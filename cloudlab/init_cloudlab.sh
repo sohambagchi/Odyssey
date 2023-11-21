@@ -5,11 +5,11 @@
     # Node w/ first IP (i.e., "manager") must run script before the rest of the nodes
     # (instantiates a memcached to setup RDMA connections)
 ORDERED_HOST_NAMES=(
-  "apt085.apt.emulab.net"
-  "apt090.apt.emulab.net"
-  "apt069.apt.emulab.net"
-  "apt080.apt.emulab.net"
-  "apt070.apt.emulab.net"
+  "apt177.apt.emulab.net"
+  "apt178.apt.emulab.net"
+  "apt173.apt.emulab.net"
+  "apt184.apt.emulab.net"
+  "apt187.apt.emulab.net"
 )
 
 # Include cloudlab_ssh_config in ssh
