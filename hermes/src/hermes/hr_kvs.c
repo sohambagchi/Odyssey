@@ -3,7 +3,8 @@
 //
 
 #include "hr_kvs_util.h"
-
+#include "splinterdb/default_data_config.h"
+#include "splinterdb/splinterdb.h"
 
 ///* ---------------------------------------------------------------------------
 ////------------------------------ HELPERS -----------------------------

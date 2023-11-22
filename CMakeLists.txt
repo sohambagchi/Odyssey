@@ -199,6 +199,7 @@ set(CRAQ_SOURCE_FILES
         craq/include/craq/cr_generic_util.h
         craq/include/craq/cr_kvs_util.h)
 
+set(SPLINTERDB_INSTALL_DIR "/splinterdb/build/release/lib/")
 
 #set(CMAKE_BUILD_TYPE Release)
 
@@ -210,6 +211,7 @@ add_executable(cht ${CHT_SOURCE_FILES} ${ODLIB_FILES})
 add_executable(craq ${CRAQ_SOURCE_FILES} ${ODLIB_FILES})
 add_executable(paxos ${PAXOS_SOURCE_FILES} ${ODLIB_FILES})
 
+include_directories(splinterdb/include/splinterdb)
 target_include_directories(derecho PUBLIC
         ${COMMON_INCLUDE_DIRS} derecho/include/derecho/)
 target_include_directories(kite PUBLIC
@@ -224,6 +226,7 @@ target_include_directories(craq PUBLIC
         ${COMMON_INCLUDE_DIRS} craq/include/craq)
 target_include_directories(paxos PUBLIC
         ${COMMON_INCLUDE_DIRS} ${PAXOS_INCLUDE_DIRS})
+target_include_directories(splinterdb PRIVATE "splinterdb/include/splinterdb")
 
 set_target_properties(derecho PROPERTIES COMPILE_FLAGS -DDERECHO)
 set_target_properties(kite PROPERTIES COMPILE_FLAGS -DKITE )
@@ -237,7 +240,7 @@ set_target_properties(paxos PROPERTIES COMPILE_FLAGS -DPAXOS)
 target_link_libraries(derecho pthread ibverbs rt numa rdmacm)
 target_link_libraries(kite pthread ibverbs rt numa rdmacm)
 target_link_libraries(zookeeper pthread ibverbs rt numa rdmacm)
-target_link_libraries(hermes pthread ibverbs rt numa rdmacm)
+target_link_libraries(hermes pthread ibverbs rt numa rdmacm hermes)
 target_link_libraries(cht pthread ibverbs rt numa rdmacm)
 target_link_libraries(craq pthread ibverbs rt numa rdmacm)
 target_link_libraries(paxos pthread ibverbs rt numa rdmacm)
