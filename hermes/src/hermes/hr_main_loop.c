@@ -3,6 +3,16 @@
 //
 
 #include "hr_inline_util.h"
+#include <stdio.h>
+#include <string.h>
+
+#include "default_data_config.h"
+#include "splinterdb.h"
+
+#define DB_FILE_NAME    "splinterdb_intro_db"
+#define USER_MAX_KEY_SIZE ((int)100)
+#define DB_FILE_SIZE_MB 1024 // Size of SplinterDB device; Fixed when created
+#define CACHE_SIZE_MB   64   // Size of cache; can be changed across boots
 
 static inline void fill_inv(hr_inv_t *inv,
                             ctx_trace_op_t *op,
