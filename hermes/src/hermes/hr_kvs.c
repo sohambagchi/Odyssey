@@ -235,7 +235,7 @@ static inline void stbetree_insert(context_t *ctx, splinterdb* spl_handle, ctx_t
     slice value = slice_create((size_t)strlen(val2), val2);
     //! insert
     splinterdb_insert(spl_handle, key, value);
-    printf("Inserted into splinter DB.\n")
+    printf("Inserted into splinter DB.\n");
     success = true;
     if (success) {
         //! something is happening here
