@@ -244,7 +244,7 @@ set_target_properties(splinterdb PROPERTIES IMPORTED_LOCATION splinterdb/build/r
 target_link_libraries(derecho pthread ibverbs rt numa rdmacm)
 target_link_libraries(kite pthread ibverbs rt numa rdmacm)
 target_link_libraries(zookeeper pthread ibverbs rt numa rdmacm)
-target_link_libraries(hermes pthread ibverbs rt numa rdmacm splinterdb)
+target_link_libraries(hermes pthread ibverbs rt numa rdmacm /mnt/mydisk/Odyssey/splinterdb/build/release/lib/libsplinterdb.so)
 target_link_libraries(cht pthread ibverbs rt numa rdmacm)
 target_link_libraries(craq pthread ibverbs rt numa rdmacm)
 target_link_libraries(paxos pthread ibverbs rt numa rdmacm)
