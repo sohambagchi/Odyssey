@@ -301,7 +301,7 @@ inline void hr_KVS_batch_op_trace(context_t *ctx, uint16_t op_num)
         buf_op_t *buf_op = (buf_op_t *) get_fifo_pull_slot(hr_ctx->buf_ops);
         check_state_with_allowed_flags(3, buf_op->op.opcode, KVS_OP_PUT, KVS_OP_GET);
         if (buf_op->op.opcode == KVS_OP_PUT) {
-            handle_trace_reqs_stb(ctx, &spl_handle, &buf_op->op);
+            handle_trace_reqs_stb(ctx, spl_handle, &buf_op->op);
         }
         handle_trace_reqs(ctx, buf_op->kv_ptr, &buf_op->op, &write_i, op_i);
         fifo_incr_pull_ptr(hr_ctx->buf_ops);
