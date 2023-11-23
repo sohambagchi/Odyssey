@@ -119,7 +119,6 @@ sleep 1
 # sudo LD_LIBRARY_PATH=/usr/local/lib/ -E \
 gdb
 	./${EXEC} \
-	-g \
 	--all-ips ${remoteIPs[@]} \
 	--machine-id $machine_id \
 	--write-ratio ${WRITE_RATIO} \
