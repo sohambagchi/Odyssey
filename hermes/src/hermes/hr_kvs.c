@@ -111,6 +111,33 @@ static inline void init_w_rob_on_rem_inv(context_t *ctx,
     fifo_incr_push_ptr(&hr_ctx->w_rob[inv_mes->m_id]);
 }
 
+static inline void sdb_init_w_rob_on_rem_inv(context_t * ctx, splinterdb* spl_handle,
+                                             hr_inv_mes_t *inv_mes, hr_inv_t *inv) {
+    hr_ctx_t *hr_ctx = (hr_ctx_t *) ctx->appl_ctx;
+    hr_w_rob_t *w_rob = (hr_w_rob_t *)
+            get_fifo_push_slot(&hr_ctx->w_rob[inv_mes->m_id]);
+    if (DEBUG_INVS)
+        my_printf(cyan, "W_rob %u for inv from %u with l_id %lu -->%lu, inserted w_id = %u\n",
+                  w_rob->id,  inv_mes->m_id, inv_mes->l_id,
+                  inv_mes->l_id + inv_mes->coalesce_num,
+                  hr_ctx->inserted_w_id[inv_mes->m_id]);
+    if (ENABLE_ASSERTIONS) {
+        assert(w_rob->w_state == INVALID);
+        w_rob->l_id = hr_ctx->inserted_w_id[inv_mes->m_id];
+    }
+    w_rob->w_state = VALID;
+    w_rob->inv_applied = true;
+    hr_ctx->inserted_w_id[inv_mes->m_id]++;
+    // w_rob capacity is already incremented when polling
+    // to achieve back pressure at polling
+    if (inv_applied) {
+        w_rob->version = inv->version;
+        w_rob->m_id = inv_mes->m_id;
+        w_rob->spl_handle = spl_handle;
+    }
+    fifo_incr_push_ptr(&hr_ctx->w_rob[inv_mes->m_id]);
+}
+
 static inline void insert_buffered_op(context_t *ctx,
                                       mica_op_t *kv_ptr,
                                       ctx_trace_op_t *op,
@@ -281,6 +308,10 @@ static inline void hr_rem_inv(context_t *ctx,
     init_w_rob_on_rem_inv(ctx, kv_ptr, inv_mes, inv, inv_applied);
 }
 
+static inline void sdb_hr_rem_inv(context_t *ctx, splinterdb* spl_handle, hr_inv_mes_t* inv_mes, hr_inv_t *inv) {
+    sdb_init_w_rob_on_rem_inv(ctx, spl_handle, inv_mes, inv);
+}
+
 
 static inline void hr_loc_read(context_t *ctx,
                                mica_op_t *kv_ptr,
@@ -372,17 +403,6 @@ inline void hr_KVS_batch_op_trace(context_t *ctx, uint16_t op_num)
     uint32_t write_i = 0;
 
     //sw_prefetch_buf_op_keys(ctx);
-    data_config splinter_data_cfg;
-    default_data_config_init(USER_MAX_KEY_SIZE, &splinter_data_cfg);
-    splinterdb_config splinterdb_cfg;
-    memset(&splinterdb_cfg, 0, sizeof(splinterdb_cfg));
-    splinterdb_cfg.filename   = DB_FILE_NAME;
-    splinterdb_cfg.disk_size  = (DB_FILE_SIZE_MB * 1024 * 1024);
-    splinterdb_cfg.cache_size = (CACHE_SIZE_MB * 1024 * 1024);
-    splinterdb_cfg.data_cfg   = &splinter_data_cfg;
-    splinterdb *spl_handle = NULL; // To a running SplinterDB instance
-    int rc = splinterdb_create(&splinterdb_cfg, &spl_handle);
-    printf("Created SplinterDB instance, dbname '%s'.\n\n", DB_FILE_NAME);
 
     for (op_i = 0; op_i < buf_ops_num; ++op_i) {
         buf_op_t *buf_op = (buf_op_t *) get_fifo_pull_slot(hr_ctx->buf_ops);
@@ -401,6 +421,32 @@ inline void hr_KVS_batch_op_trace(context_t *ctx, uint16_t op_num)
     if (!INSERT_WRITES_FROM_KVS)
         hr_ctx->ptrs_to_inv->polled_invs = (uint16_t) write_i;
 }
+
+inline void hr_sdb_batch_op_trace(contex_t *ctx, uint16_t op_num, splinterdb* spl_handle) {
+    hr_ctx_t *hr_ctx = (hr_ctx_t*) ctx->appl_ctx;
+    ctx_trace_op_t *op = hr_ctx->ops;
+    uint16_t op_i;
+    uint32_t write_i = 0;
+    uint32_t buf_ops_num = hr_ctx->buf_ops->capacity;
+    if (ENABLE_ASSERTIONS) {
+        assert(op != NULL);
+        assert(op_num > 0 && op_num <= HR_TRACE_BATCH);
+    }
+    for (op_i = 0; op_i < buf_ops_num; ++op_i) {
+        buf_op_t *buf_op = (buf_op_t *) get_fifo_pull_slot(hr_ctx->buf_ops);
+        check_state_with_allowed_flags(3, buf_op->op.opcode, KVS_OP_PUT, KVS_OP_GET);
+        handle_trace_reqs_stb(ctx, spl_handle, &buf_op->op, &write_i, op_i);
+        // handle_trace_reqs(ctx, buf_op->kv_ptr, &buf_op->op, &write_i, op_i);
+        fifo_incr_pull_ptr(hr_ctx->buf_ops);
+        fifo_decrem_capacity(hr_ctx->buf_ops);
+    }
+    for (op_i = 0; op_i < op_num; op_i++) {
+        handle_trace_reqs_stb(ctx, spl_handle, &op[op_i], &write_i, op_i);
+    }
+    if (!INSERT_WRITES_FROM_KVS)
+        hr_ctx->ptrs_to_inv->polled_invs = (uint16_t) write_i;
+}
+
 
 inline void hr_KVS_batch_op_invs(context_t *ctx)
 {
@@ -429,5 +475,21 @@ inline void hr_KVS_batch_op_invs(context_t *ctx)
     for(op_i = 0; op_i < op_num; op_i++) {
         od_KVS_check_key(kv_ptr[op_i], invs[op_i]->key, op_i);
         hr_rem_inv(ctx, kv_ptr[op_i], inv_mes[op_i], invs[op_i]);
+    }
+}
+
+inline void hr_sdb_batch_op_invs(context_t *ctx, splinterdb* spl_handle) {
+    hr_ctx_t *hr_ctx = (hr_ctx_t *) ctx->appl_ctx;
+    ptrs_to_inv_t *ptrs_to_inv = hr_ctx->ptrs_to_inv;
+    hr_inv_mes_t **inv_mes = hr_ctx->ptrs_to_inv->ptr_to_mes;
+    hr_inv_t **invs = ptrs_to_inv->ptr_to_ops;
+    uint16_t op_num = ptrs_to_inv->polled_invs;
+    uint16_t op_i;
+    if (ENABLE_ASSERTIONS) {
+        assert(invs != NULL);
+        assert(op_num > 0 && op_num <= MAX_INCOMING_INV);
+    }
+    for (op_i = 0; op_i < op_num; op_i++) {
+        sdb_hr_rem_inv();
     }
 }

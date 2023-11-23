@@ -29,6 +29,18 @@ static inline void fill_inv(hr_inv_t *inv,
 
 static inline void hr_batch_from_trace_to_KVS(context_t *ctx)
 {
+    // todo: create an instance of splinterDB here.
+    data_config splinter_data_cfg;
+    default_data_config_init(USER_MAX_KEY_SIZE, &splinter_data_cfg);
+    splinterdb_config splinterdb_cfg;
+    memset(&splinterdb_cfg, 0, sizeof(splinterdb_cfg));
+    splinterdb_cfg.filename   = DB_FILE_NAME;
+    splinterdb_cfg.disk_size  = (DB_FILE_SIZE_MB * 1024 * 1024);
+    splinterdb_cfg.cache_size = (CACHE_SIZE_MB * 1024 * 1024);
+    splinterdb_cfg.data_cfg   = &splinter_data_cfg;
+    splinterdb *spl_handle = NULL; // To a running SplinterDB instance
+    int rc = splinterdb_create(&splinterdb_cfg, &spl_handle);
+    printf("Created SplinterDB instance, dbname '%s'.\n\n", DB_FILE_NAME);
   hr_ctx_t *hr_ctx = (hr_ctx_t *) ctx->appl_ctx;
   ctx_trace_op_t *ops = hr_ctx->ops;
   trace_t *trace = hr_ctx->trace;
