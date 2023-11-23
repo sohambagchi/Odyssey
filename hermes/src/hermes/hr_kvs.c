@@ -164,8 +164,8 @@ static inline void stbetree_insert(context_t *ctx, splinterdb* spl_handle, ctx_t
     uint64_t new_version;
     char val1[4], val2[4];
     printf("Using splinter DB as backend\n");
-    sprintf(val1, "%hhu", op->value_to_write);
-    sprintf(val2, "%hhu", op->value_to_write - 1);
+    sprintf(val1, "%hhn", op->value_to_write);
+    sprintf(val2, "%hhn", op->value_to_write - 1);
     printf("\n I reached here.");
     slice key   = slice_create((size_t)strlen(val1), val1);
     slice value = slice_create((size_t)strlen(val2), val2);
