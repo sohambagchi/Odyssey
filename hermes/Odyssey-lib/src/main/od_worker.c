@@ -38,12 +38,12 @@ void *worker(void *arg)
     splinterdb *spl_handle = NULL; // To a running SplinterDB instance
     int rc = splinterdb_create(&splinterdb_cfg, &spl_handle);
     printf("Created SplinterDB instance, dbname '%s'.\n\n", DB_FILE_NAME);
-  context_t *ctx = create_ctx((uint8_t) machine_id,
+    context_t *ctx = create_ctx((uint8_t) machine_id,
                               (uint16_t) params.id,
                               (uint16_t) QP_NUM,
                               local_ip);
   // todo: create an instance of splinterdb here
- appl_init_qp_meta(ctx, spl_handle);
+    appl_init_qp_meta(ctx, spl_handle);
 
  set_up_ctx(ctx);
 
