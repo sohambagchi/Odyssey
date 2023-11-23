@@ -117,6 +117,7 @@ sleep 1
 #
 #blue "Running  worker threads"
 # sudo LD_LIBRARY_PATH=/usr/local/lib/ -E \
+gdb
 	./${EXEC} \
 	--all-ips ${remoteIPs[@]} \
 	--machine-id $machine_id \
