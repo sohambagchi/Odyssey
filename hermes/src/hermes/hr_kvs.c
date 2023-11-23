@@ -260,10 +260,12 @@ static inline void stbetree_read(context_t *ctx, splinterdb* spl_handle, ctx_tra
     }
     splinterdb_lookup_result result;
     splinterdb_lookup_result_init(spl_handle, &result, 0, NULL);
+    printf("Is the error happening here?\n");
     char key[4];
     sprintf(key, "%hhn", op->value_to_read);
     slice key_slice = slice_create((size_t)strlen(key), key);
     int rc = splinterdb_lookup(spl_handle, key_slice, &result);
+    printf("Was the lookup successful?\n");
     //! handling scenarios where key does or does not exist
     success == !rc ? true : false;
     //! if we succeed
