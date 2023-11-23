@@ -41,7 +41,7 @@ void *worker(void *arg)
     splinterdb_cfg.data_cfg   = &splinter_data_cfg;
     splinterdb *spl_handle = NULL; // To a running SplinterDB instance
     int rc = splinterdb_create(&splinterdb_cfg, &spl_handle);
-    printf("Created SplinterDB instance, dbname '%s'.\n\n", DB_FILE_NAME);
+    printf("Created SplinterDB instance (worker), dbname '%s'.\n\n", DB_FILE_NAME);
  appl_init_qp_meta(ctx, spl_handle);
 
  set_up_ctx(ctx);

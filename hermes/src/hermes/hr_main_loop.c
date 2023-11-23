@@ -40,7 +40,6 @@ static inline void hr_batch_from_trace_to_KVS(context_t *ctx)
     splinterdb_cfg.data_cfg   = &splinter_data_cfg;
     splinterdb *spl_handle = NULL; // To a running SplinterDB instance
     int rc = splinterdb_create(&splinterdb_cfg, &spl_handle);
-    printf("Created SplinterDB instance, dbname '%s'.\n\n", DB_FILE_NAME);
   hr_ctx_t *hr_ctx = (hr_ctx_t *) ctx->appl_ctx;
   ctx_trace_op_t *ops = hr_ctx->ops;
   trace_t *trace = hr_ctx->trace;
