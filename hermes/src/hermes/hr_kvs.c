@@ -130,11 +130,9 @@ static inline void sdb_init_w_rob_on_rem_inv(context_t * ctx, splinterdb* spl_ha
     hr_ctx->inserted_w_id[inv_mes->m_id]++;
     // w_rob capacity is already incremented when polling
     // to achieve back pressure at polling
-    if (inv_applied) {
-        w_rob->version = inv->version;
-        w_rob->m_id = inv_mes->m_id;
-        w_rob->spl_handle = spl_handle;
-    }
+    w_rob->version = inv->version;
+    w_rob->m_id = inv_mes->m_id;
+    w_rob->spl_handle = spl_handle;
     fifo_incr_push_ptr(&hr_ctx->w_rob[inv_mes->m_id]);
 }
 
@@ -228,7 +226,6 @@ static inline void hr_local_inv(context_t *ctx,
 static inline void stbetree_insert(context_t *ctx, splinterdb* spl_handle, ctx_trace_op_t *op, uint64_t new_version,
                                    uint32_t *write_i) {
     bool success = false;
-    uint64_t new_version;
     char val1[4], val2[4];
     printf("Using splinter DB as backend\n");
     sprintf(val1, "%hhn", op->value_to_write - 1);
@@ -241,7 +238,7 @@ static inline void stbetree_insert(context_t *ctx, splinterdb* spl_handle, ctx_t
     success = true;
     if (success) {
         //! something is happening here
-        sdb_init_w_rob_on_loc_inv(ctx, spl_handle, op, *write_i);
+        sdb_init_w_rob_on_loc_inv(ctx, spl_handle, op, 0, *write_i);
         if (INSERT_WRITES_FROM_KVS)
             od_insert_mes(ctx, INV_QP_ID, (uint32_t) INV_SIZE, 1, false, op, 0, 0);
         else {
@@ -264,8 +261,8 @@ static inline void stbetree_read(context_t *ctx, splinterdb* spl_handle, ctx_tra
     splinterdb_lookup_result_init(spl_handle, &result, 0, NULL);
     char key[4];
     sprintf(key, "%hhn", op->value_to_read);
-    slice key = slice_create((size_t)strlen(key), key);
-    int rc = splinterdb_lookup(spl_handle, key, &result);
+    slice key_slice = slice_create((size_t)strlen(key), key);
+    int rc = splinterdb_lookup(spl_handle, key_slice, &result);
     //! handling scenarios where key does or does not exist
     success == !rc ? true : false;
     //! if we succeed
@@ -407,8 +404,8 @@ inline void hr_KVS_batch_op_trace(context_t *ctx, uint16_t op_num)
     for (op_i = 0; op_i < buf_ops_num; ++op_i) {
         buf_op_t *buf_op = (buf_op_t *) get_fifo_pull_slot(hr_ctx->buf_ops);
         check_state_with_allowed_flags(3, buf_op->op.opcode, KVS_OP_PUT, KVS_OP_GET);
-        handle_trace_reqs_stb(ctx, spl_handle, &buf_op->op, &write_i, op_i);
-        // handle_trace_reqs(ctx, buf_op->kv_ptr, &buf_op->op, &write_i, op_i);
+        // handle_trace_reqs_stb(ctx, spl_handle, &buf_op->op, &write_i, op_i);
+        handle_trace_reqs(ctx, buf_op->kv_ptr, &buf_op->op, &write_i, op_i);
         fifo_incr_pull_ptr(hr_ctx->buf_ops);
         fifo_decrem_capacity(hr_ctx->buf_ops);
     }
@@ -422,7 +419,7 @@ inline void hr_KVS_batch_op_trace(context_t *ctx, uint16_t op_num)
         hr_ctx->ptrs_to_inv->polled_invs = (uint16_t) write_i;
 }
 
-inline void hr_sdb_batch_op_trace(contex_t *ctx, uint16_t op_num, splinterdb* spl_handle) {
+inline void hr_sdb_batch_op_trace(context_t *ctx, uint16_t op_num, splinterdb* spl_handle) {
     hr_ctx_t *hr_ctx = (hr_ctx_t*) ctx->appl_ctx;
     ctx_trace_op_t *op = hr_ctx->ops;
     uint16_t op_i;
@@ -490,6 +487,6 @@ inline void hr_sdb_batch_op_invs(context_t *ctx, splinterdb* spl_handle) {
         assert(op_num > 0 && op_num <= MAX_INCOMING_INV);
     }
     for (op_i = 0; op_i < op_num; op_i++) {
-        sdb_hr_rem_inv();
+        sdb_hr_rem_inv(ctx, spl_handle, inv_mes[op_i], invs[op_i]);
     }
 }
