@@ -3,7 +3,7 @@
 //
 
 #include "hr_util.h"
-#include "splinterdb.c"
+#include "splinterdb.h"
 
 void hr_static_assert_compile_parameters()
 {

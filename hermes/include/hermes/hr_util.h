@@ -11,7 +11,7 @@
 #include <hr_inline_util.h>
 #include "../../../odlib/include/trace/od_trace_util.h"
 #include "od_init_func.h"
-#include "splinterdb.c"
+#include "splinterdb.h"
 
 void hr_stats(stats_ctx_t *ctx);
 
