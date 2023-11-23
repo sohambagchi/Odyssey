@@ -13,7 +13,7 @@
 #ifndef _SPLINTERDB_H_
 #define _SPLINTERDB_H_
 
-#include "splinterdb/data.h"
+#include "data.h"
 
 // Get a version string for this build of SplinterDB
 // Currently a git tag

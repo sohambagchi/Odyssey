@@ -19,8 +19,8 @@
 
 #pragma once
 
-#include "splinterdb/public_platform.h"
-#include "splinterdb/public_util.h"
+#include "public_platform.h"
+#include "public_util.h"
 
 /*
  * Message type up to MESSAGE_TYPE_MAX_VALID_USER_TYPE is a

@@ -2,4 +2,4 @@
 export COMPILER=gcc
 export CC=$COMPILER
 export LD=$COMPILER
-make
+make VERBOSE=1

@@ -12,7 +12,7 @@ set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O3 -std=gnu1x -march=native -Wno-address-of
 #-fno-inline
 #-fsanitize=address -fsanitize=thread
 # -fsanitize=address -fno-inline -fno-omit-frame-pointer
-
+include_directories(/splinterdb/include/splinterdb)
 set(COMMON_INCLUDE_DIRS
         /usr/include/
         /usr/include/rdma
@@ -230,7 +230,6 @@ target_include_directories(craq PUBLIC
         ${COMMON_INCLUDE_DIRS} craq/include/craq)
 target_include_directories(paxos PUBLIC
         ${COMMON_INCLUDE_DIRS} ${PAXOS_INCLUDE_DIRS})
-target_include_directories(splinterdb INTERFACE ${SPLINTERDB_INCLUDE_DIRS})
 
 set_target_properties(derecho PROPERTIES COMPILE_FLAGS -DDERECHO)
 set_target_properties(kite PROPERTIES COMPILE_FLAGS -DKITE )

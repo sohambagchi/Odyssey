@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include "splinterdb/public_platform.h"
+#include "public_platform.h"
 
 /*
  * A slice is just a const pointer with a length.  Slices do not

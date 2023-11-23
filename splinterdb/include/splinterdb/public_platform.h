@@ -33,7 +33,7 @@ compile time for the linux platform, you might
 #define TEMP_XSTRINGIFY(s) TEMP_STRINGIFY(s)
 #define TEMP_STRINGIFY(s)  #s
 // clang-format off
-#define PUBLIC_PLATFORM_H TEMP_XSTRINGIFY(splinterdb/SPLINTERDB_PLATFORM_DIR/public_platform.h)
+#define PUBLIC_PLATFORM_H TEMP_XSTRINGIFY(SPLINTERDB_PLATFORM_DIR/public_platform.h)
 // clang-format on
 
 #include PUBLIC_PLATFORM_H
