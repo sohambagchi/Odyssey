@@ -10,6 +10,7 @@
 #include "od_network_context.h"
 #include "hr_kvs_util.h"
 #include "hr_debug_util.h"
+#include "splinterdb.h"
 //#include "hr_reserve_stations.h"
 
 
@@ -38,6 +39,6 @@ bool hr_commit_handler(context_t *ctx);
 ////------------------------------MAIN LOOP -----------------------------
 ////---------------------------------------------------------------------------*/
 
-_Noreturn void hr_main_loop(context_t *ctx);
+_Noreturn void hr_main_loop(context_t *ctx, splinterdb *spl_handle);
 
 #endif //ODYSSEY_HR_INLINE_UTIL_H
