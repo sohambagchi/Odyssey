@@ -31,20 +31,6 @@ static inline void fill_inv(hr_inv_t *inv,
 
 static inline void hr_batch_from_trace_to_KVS(context_t *ctx)
 {
-    // todo: create an instance of splinterDB here.
-    if (!has_run) {
-        data_config splinter_data_cfg;
-        default_data_config_init(USER_MAX_KEY_SIZE, &splinter_data_cfg);
-        splinterdb_config splinterdb_cfg;
-        memset(&splinterdb_cfg, 0, sizeof(splinterdb_cfg));
-        splinterdb_cfg.filename   = DB_FILE_NAME;
-        splinterdb_cfg.disk_size  = (DB_FILE_SIZE_MB * 1024 * 1024);
-        splinterdb_cfg.cache_size = (CACHE_SIZE_MB * 1024 * 1024);
-        splinterdb_cfg.data_cfg   = &splinter_data_cfg;
-        int rc = splinterdb_create(&splinterdb_cfg, &spl_handle);
-        printf("Created SplinterDB instance (main loop), dbname '%s'.\n\n", DB_FILE_NAME);
-        has_run = true;
-    }
   hr_ctx_t *hr_ctx = (hr_ctx_t *) ctx->appl_ctx;
   ctx_trace_op_t *ops = hr_ctx->ops;
   trace_t *trace = hr_ctx->trace;
@@ -345,11 +331,11 @@ inline bool hr_commit_handler(context_t *ctx)
 }
 
 
-_Noreturn inline void hr_main_loop(context_t *ctx)
+_Noreturn inline void hr_main_loop(context_t *ctx, splinterdb* spl_handle)
 {
   if (ctx->t_id == 0) my_printf(yellow, "Hermes main loop \n");
   while(true) {
-    hr_batch_from_trace_to_KVS(ctx);
+    hr_batch_from_trace_to_KVS(ctx, spl_handle);
     ctx_send_broadcasts(ctx, INV_QP_ID);
     ctx_poll_incoming_messages(ctx, INV_QP_ID);
     od_send_acks(ctx, ACK_QP_ID);
