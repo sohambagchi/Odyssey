@@ -106,6 +106,8 @@ typedef struct key mica_key_t;
 #define PUT_A_MACHINE_TO_SLEEP 1
 #define MACHINE_THAT_SLEEPS 1
 
+// TODO: Soham - Here is the MEASURE_LATENCY flag. It is set to 0 by default.
+
 #define MEASURE_LATENCY 0
 #define LATENCY_MACHINE 0
 #define LATENCY_THREAD 0

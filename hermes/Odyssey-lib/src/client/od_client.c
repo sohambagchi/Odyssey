@@ -95,6 +95,9 @@ static inline void clt_start_latency_mes(clt_trace_t* tr_info,
 static inline void clt_stop_latency_mes(clt_trace_t* tr_info,
                                         uint32_t sess_id)
 {
+
+  // TODO: Soham - The variable "MEASURE_LATENCY" is set to zero, which is why we are not getting the stats.
+
   if ((!MEASURE_LATENCY) ||
       (!tr_info->measuring_latency) ||
       (tr_info->lat_info->measured_req_flag == NO_REQ)) return;

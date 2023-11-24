@@ -7,6 +7,9 @@
 #include "od_latency_util.h"
 
 void print_latency_stats(void);
+
+// TODO: Soham - This is where the stats are printed
+
 void *print_stats(void* no_arg)
 {
 

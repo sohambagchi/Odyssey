@@ -26,6 +26,8 @@ void *worker(void *arg)
 
  set_up_ctx(ctx);
 
+  // TODO: Soham - This is where the stats are gathered
+
   /// Connect with other machines and exchange qp information
   setup_connections_and_spawn_stats_thread(ctx);
   // We can set up the send work requests now that
