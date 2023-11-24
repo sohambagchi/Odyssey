@@ -48,6 +48,8 @@ void *worker(void *arg)
  set_up_ctx(ctx);
 
   /// Connect with other machines and exchange qp information
+
+  // todo: stats are created here.
   setup_connections_and_spawn_stats_thread(ctx);
   // We can set up the send work requests now that
   // we have address handles for remote machines

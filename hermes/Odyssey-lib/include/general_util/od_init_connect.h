@@ -11,6 +11,7 @@
 #include "od_hrd.h"
 
 static int spawn_stats_thread() {
+    // todo: here stats are spawned
   pthread_t *thread_arr = (pthread_t *) malloc(sizeof(pthread_t));
   pthread_attr_t attr;
   cpu_set_t cpus_stats;

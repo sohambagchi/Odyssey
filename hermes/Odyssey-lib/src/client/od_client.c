@@ -92,6 +92,7 @@ static inline void clt_start_latency_mes(clt_trace_t* tr_info,
 
 }
 
+//! todo: soham
 static inline void clt_stop_latency_mes(clt_trace_t* tr_info,
                                         uint32_t sess_id)
 {
