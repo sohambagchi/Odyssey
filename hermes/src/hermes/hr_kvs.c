@@ -227,15 +227,12 @@ static inline void stbetree_insert(context_t *ctx, splinterdb* spl_handle, ctx_t
                                    uint32_t *write_i) {
     bool success = false;
     char val1[4], val2[4];
-    printf("Using splinter DB as backend\n");
     sprintf(val1, "%hhn", op->value_to_write - 1);
     sprintf(val2, "%hhn", op->value_to_write);
-    printf("I reached here.\n");
     slice key   = slice_create((size_t)strlen(val1), val1);
     slice value = slice_create((size_t)strlen(val2), val2);
     //! insert
     splinterdb_insert(spl_handle, key, value);
-    printf("Inserted into splinter DB.\n");
     success = true;
     if (success) {
         //! something is happening here
@@ -260,12 +257,10 @@ static inline void stbetree_read(context_t *ctx, splinterdb* spl_handle, ctx_tra
     }
     splinterdb_lookup_result result;
     splinterdb_lookup_result_init(spl_handle, &result, 0, NULL);
-    printf("Is the error happening here?\n");
     char key[4];
     sprintf(key, "%hhn", op->value_to_read);
     slice key_slice = slice_create((size_t)strlen(key), key);
     int rc = splinterdb_lookup(spl_handle, key_slice, &result);
-    printf("Was the lookup successful?\n");
     //! handling scenarios where key does or does not exist
     success == !rc ? true : false;
     //! if we succeed
@@ -479,6 +474,7 @@ inline void hr_KVS_batch_op_invs(context_t *ctx)
 }
 
 inline void hr_sdb_batch_op_invs(context_t *ctx, splinterdb* spl_handle) {
+    printf("Debugging\n");
     hr_ctx_t *hr_ctx = (hr_ctx_t *) ctx->appl_ctx;
     ptrs_to_inv_t *ptrs_to_inv = hr_ctx->ptrs_to_inv;
     hr_inv_mes_t **inv_mes = hr_ctx->ptrs_to_inv->ptr_to_mes;
