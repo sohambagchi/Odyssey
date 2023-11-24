@@ -60,8 +60,8 @@ void *worker(void *arg)
       "%d sessions \n", t_id, SESSIONS_PER_THREAD);
 
   ///
-  main_loop(ctx);
+  main_loop(ctx, spl_handle);
 
 
   return NULL;
-};
+}
