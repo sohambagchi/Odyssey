@@ -4,10 +4,14 @@
 
 #include "od_wrkr_prot_sel.h"
 #include "od_init_connect.h"
-
+#include "btree2v.c"
 
 void *worker(void *arg)
 {
+
+  BtDb *bt = new BtDb();
+  printf("Successfully created Btree instance\n");
+
   struct thread_params params = *(struct thread_params *) arg;
   uint16_t t_id = (uint16_t) params.id;
 
@@ -21,7 +25,7 @@ void *worker(void *arg)
                               (uint16_t) params.id,
                               (uint16_t) QP_NUM,
                               local_ip);
- appl_init_qp_meta(ctx);
+ appl_init_qp_meta(ctx, bt);
 
  set_up_ctx(ctx);
 
@@ -39,7 +43,7 @@ void *worker(void *arg)
       "%d sessions \n", t_id, SESSIONS_PER_THREAD);
 
   ///
-  main_loop(ctx);
+  main_loop(ctx, bt);
 
 
   return NULL;

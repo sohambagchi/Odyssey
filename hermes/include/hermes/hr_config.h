@@ -9,6 +9,7 @@
 #include "od_fifo.h"
 #include <hr_messages.h>
 #include <od_network_context.h>
+#include "btree2v.c"
 
 #define HR_W_ROB_SIZE SESSIONS_PER_THREAD
 #define HR_TRACE_BATCH SESSIONS_PER_THREAD
@@ -84,6 +85,8 @@ typedef struct w_rob {
   uint8_t acks_seen;
   uint8_t val_len;
   bool inv_applied;
+  BtDb *bt;
+
 
 } hr_w_rob_t;
 
@@ -94,6 +97,7 @@ typedef struct buf_op {
   mica_op_t *kv_ptr;
   //uint16_t sess_id;
   //uint8_t opcode;
+  BtDb *bt;
 } buf_op_t;
 
 typedef struct rep_ops {

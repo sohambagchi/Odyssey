@@ -15,4 +15,8 @@ void hr_KVS_batch_op_trace(context_t *ctx, uint16_t op_num);
 
 void hr_KVS_batch_op_invs(context_t *ctx);
 
+void hr_bt_batch_op_trace(context_t *ctx, uint16_t op_num, BtDb *bt);
+
+void hr_bt_batch_op_invs(context_t *ctx, BtDb *bt);
+
 #endif //ODYSSEY_HR_KVS_UTIL_H
