@@ -222,7 +222,7 @@ target_include_directories(kite PUBLIC
 target_include_directories(zookeeper PUBLIC
         ${COMMON_INCLUDE_DIRS} zookeeper/include/zookeeper)
 target_include_directories(hermes PUBLIC
-        ${COMMON_INCLUDE_DIRS} hermes/include/hermes)
+        ${COMMON_INCLUDE_DIRS} ${BTREE_SOURCE_FILES} hermes/include/hermes)
 target_include_directories(cht PUBLIC
         ${COMMON_INCLUDE_DIRS} cht/include/cht)
 target_include_directories(craq PUBLIC
