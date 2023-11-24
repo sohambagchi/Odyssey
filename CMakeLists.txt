@@ -28,6 +28,7 @@ set(COMMON_INCLUDE_DIRS
         odlib/include/trace
         odlib/include/protocols)
 
+
 set (PAXOS_INCLUDE_DIRS
         paxos/include/cp_top/
         paxos/include/cp_netw/
@@ -198,7 +199,11 @@ set(CRAQ_SOURCE_FILES
         craq/include/craq/cr_messages.h
         craq/include/craq/cr_generic_util.h
         craq/include/craq/cr_kvs_util.h)
+set (BTREE_SOURCE_FILES
+	Btree-source-code/btree2/btree2v.c)
 
+add_library(btree SHARED IMPORTED)
+set_target_properties(btree PROPERTIES IMPORTED_LOCATION /Btree-source-code/btree2/btree.so)
 
 #set(CMAKE_BUILD_TYPE Release)
 
@@ -237,7 +242,7 @@ set_target_properties(paxos PROPERTIES COMPILE_FLAGS -DPAXOS)
 target_link_libraries(derecho pthread ibverbs rt numa rdmacm)
 target_link_libraries(kite pthread ibverbs rt numa rdmacm)
 target_link_libraries(zookeeper pthread ibverbs rt numa rdmacm)
-target_link_libraries(hermes pthread ibverbs rt numa rdmacm)
+target_link_libraries(hermes pthread ibverbs rt numa rdmacm /users/sohamb/ankith/Odyssey/Btree-source-code/btree2)
 target_link_libraries(cht pthread ibverbs rt numa rdmacm)
 target_link_libraries(craq pthread ibverbs rt numa rdmacm)
 target_link_libraries(paxos pthread ibverbs rt numa rdmacm)
