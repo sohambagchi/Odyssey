@@ -474,7 +474,6 @@ inline void hr_KVS_batch_op_invs(context_t *ctx)
 }
 
 inline void hr_sdb_batch_op_invs(context_t *ctx, splinterdb* spl_handle) {
-    printf("Debugging\n");
     hr_ctx_t *hr_ctx = (hr_ctx_t *) ctx->appl_ctx;
     ptrs_to_inv_t *ptrs_to_inv = hr_ctx->ptrs_to_inv;
     hr_inv_mes_t **inv_mes = hr_ctx->ptrs_to_inv->ptr_to_mes;
