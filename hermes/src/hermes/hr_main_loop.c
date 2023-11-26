@@ -92,25 +92,25 @@ static inline void apply_writes(context_t *ctx,
         assert(w_rob->version > 0);
         assert(w_rob != NULL);
       }
-      mica_op_t *kv_ptr = w_rob->kv_ptr;
-      lock_seqlock(&kv_ptr->seqlock);
-      {
-        //assert(kv_ptr->m_id == w_rob->m_id);
-        if (ENABLE_ASSERTIONS) assert(kv_ptr->version > 0);
-        if (kv_ptr->version == w_rob->version &&
-            kv_ptr->m_id == w_rob->m_id) {
-          if (ENABLE_ASSERTIONS) {
-            if (w_rob->m_id == ctx->m_id)
-              assert(kv_ptr->state == HR_W);
-            else
-              assert(kv_ptr->state == HR_INV ||
-                     kv_ptr->state == HR_INV_T);
-          }
-          kv_ptr->state = HR_V;
-        }
-
-      }
-      unlock_seqlock(&kv_ptr->seqlock);
+//      mica_op_t *kv_ptr = w_rob->kv_ptr;
+//      lock_seqlock(&kv_ptr->seqlock);
+//      {
+//        //assert(kv_ptr->m_id == w_rob->m_id);
+//        if (ENABLE_ASSERTIONS) assert(kv_ptr->version > 0);
+//        if (kv_ptr->version == w_rob->version &&
+//            kv_ptr->m_id == w_rob->m_id) {
+//          if (ENABLE_ASSERTIONS) {
+//            if (w_rob->m_id == ctx->m_id)
+//              assert(kv_ptr->state == HR_W);
+//            else
+//              assert(kv_ptr->state == HR_INV ||
+//                     kv_ptr->state == HR_INV_T);
+//          }
+//          kv_ptr->state = HR_V;
+//        }
+//
+//      }
+//      unlock_seqlock(&kv_ptr->seqlock);
     }
   }
 }
@@ -160,7 +160,7 @@ static inline void hr_commit_writes(context_t *ctx)
   }
 
   if (write_num > 0) {
-    // apply_writes(ctx, ptrs_to_w_rob, write_num);
+     apply_writes(ctx, ptrs_to_w_rob, write_num);
     if (local_op_i > 0) {
       hr_ctx->all_sessions_stalled = false;
       ctx_insert_commit(ctx, COM_QP_ID, local_op_i, hr_ctx->committed_w_id[ctx->m_id]);
