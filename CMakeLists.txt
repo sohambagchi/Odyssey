@@ -3,6 +3,7 @@ project(odyssey)
 
 set(odyssey_VERSION_MAJOR 1)
 
+#include_directories(/Btree-source-code/btree2)
 
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O3 -std=gnu1x -march=native -Wno-address-of-packed-member \
 -Wno-format-truncation -D_GNU_SOURCE  -g ")
@@ -12,7 +13,7 @@ set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O3 -std=gnu1x -march=native -Wno-address-of
 #-fno-inline
 #-fsanitize=address -fsanitize=thread
 # -fsanitize=address -fno-inline -fno-omit-frame-pointer
-
+link_directories(/users/sohamb/ankith/Odyssey/Btree-source-code/btree2/)
 set(COMMON_INCLUDE_DIRS
         /usr/include/
         /usr/include/rdma
@@ -199,11 +200,12 @@ set(CRAQ_SOURCE_FILES
         craq/include/craq/cr_messages.h
         craq/include/craq/cr_generic_util.h
         craq/include/craq/cr_kvs_util.h)
-set (BTREE_SOURCE_FILES
-	Btree-source-code/btree2/btree2v.c)
+
+set (BTREE_INCLUDE_DIRS
+	Btree-source-code/btree2/)
 
 add_library(btree SHARED IMPORTED)
-set_target_properties(btree PROPERTIES IMPORTED_LOCATION /Btree-source-code/btree2/btree.so)
+set_target_properties(btree PROPERTIES IMPORTED_LOCATION Btree-source-code/btree2/libbtree.so)
 
 #set(CMAKE_BUILD_TYPE Release)
 
@@ -222,7 +224,7 @@ target_include_directories(kite PUBLIC
 target_include_directories(zookeeper PUBLIC
         ${COMMON_INCLUDE_DIRS} zookeeper/include/zookeeper)
 target_include_directories(hermes PUBLIC
-        ${COMMON_INCLUDE_DIRS} ${BTREE_SOURCE_FILES} hermes/include/hermes)
+        ${COMMON_INCLUDE_DIRS} ${BTREE_INCLUDE_DIRS} hermes/include/hermes)
 target_include_directories(cht PUBLIC
         ${COMMON_INCLUDE_DIRS} cht/include/cht)
 target_include_directories(craq PUBLIC
@@ -237,12 +239,12 @@ set_target_properties(hermes PROPERTIES COMPILE_FLAGS -DHERMES)
 set_target_properties(cht PROPERTIES COMPILE_FLAGS -DCHT)
 set_target_properties(craq PROPERTIES COMPILE_FLAGS -DCRAQ)
 set_target_properties(paxos PROPERTIES COMPILE_FLAGS -DPAXOS)
-
+set_target_properties(btree PROPERTIES IMPORTED_LOCATION Btree-source-code/btree2/libbtree.so)
 
 target_link_libraries(derecho pthread ibverbs rt numa rdmacm)
 target_link_libraries(kite pthread ibverbs rt numa rdmacm)
 target_link_libraries(zookeeper pthread ibverbs rt numa rdmacm)
-target_link_libraries(hermes pthread ibverbs rt numa rdmacm /users/sohamb/ankith/Odyssey/Btree-source-code/btree2)
+target_link_libraries(hermes pthread ibverbs rt numa rdmacm /users/sohamb/ankith/Odyssey/Btree-source-code/btree2/libbtree.so)
 target_link_libraries(cht pthread ibverbs rt numa rdmacm)
 target_link_libraries(craq pthread ibverbs rt numa rdmacm)
 target_link_libraries(paxos pthread ibverbs rt numa rdmacm)

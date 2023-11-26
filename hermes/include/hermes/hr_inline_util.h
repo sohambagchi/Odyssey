@@ -11,6 +11,7 @@
 #include "hr_kvs_util.h"
 #include "hr_debug_util.h"
 //#include "hr_reserve_stations.h"
+#include "btree2v.h"
 
 
 
@@ -38,6 +39,6 @@ bool hr_commit_handler(context_t *ctx);
 ////------------------------------MAIN LOOP -----------------------------
 ////---------------------------------------------------------------------------*/
 
-_Noreturn void hr_main_loop(context_t *ctx);
+_Noreturn void hr_main_loop(context_t *ctx, BtDb *bt);
 
 #endif //ODYSSEY_HR_INLINE_UTIL_H

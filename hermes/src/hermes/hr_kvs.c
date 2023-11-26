@@ -3,7 +3,7 @@
 //
 
 #include "hr_kvs_util.h"
-#include "btree2v.c"
+#include "btree2v.h"
 
 
 ///* ---------------------------------------------------------------------------
@@ -349,12 +349,14 @@ static inline void bt_init_w_rob_on_loc_inv(context_t *ctx, BtDb *bt,
  static inline void bt_insert(context_t *ctx, BtDb *bt, ctx_trace_op_t *op, uint64_t new_version,
                                     uint32_t *write_i) {
      bool success = false;
-     uint64_t new_version;
-     // TODO: Ankith - Insert according to btree2v.c bt_insertkey()
+    //  uint64_t new_version;
+     // TODO: Ankith - Insert according to btree2v.h bt_insertkey()
 
-     bt = bt_insertkey (bt, op->value_to_write - 1, 1, 0, 0, 0)
+     BTERR bte;
 
-     success = true;
+     bte = bt_insertkey (bt, op->value_to_write - 1, 1, 0, 0, 0);
+
+     success = (bte == BTERR_ok ? true : false);
      if (success) {
          //! something is happening here
          bt_init_w_rob_on_loc_inv(ctx, bt, op, 0, *write_i);
@@ -366,7 +368,7 @@ static inline void bt_init_w_rob_on_loc_inv(context_t *ctx, BtDb *bt,
              (*write_i)++;
          }
      } else {
-         bt_insert_buffered_ops(ctx, spl_handle, op, true);
+         bt_insert_buffered_ops(ctx, bt, op, true);
      }
  }
 
@@ -377,7 +379,7 @@ static inline void bt_init_w_rob_on_loc_inv(context_t *ctx, BtDb *bt,
          assert(bt != NULL);
      }
      
-    unsigned long long row_id = bt_findkey(bt, op->value_to_read - 1, 1)
+    unsigned long long row_id = bt_findkey(bt, op->value_to_read - 1, 1);
 
      //! handling scenarios where key does or does not exist
      success = row_id == 0 ? false : true;
@@ -474,6 +476,6 @@ static inline void bt_init_w_rob_on_loc_inv(context_t *ctx, BtDb *bt,
          assert(op_num > 0 && op_num <= MAX_INCOMING_INV);
      }
      for (op_i = 0; op_i < op_num; op_i++) {
-         bt_hr_rem_inv();
+         bt_hr_rem_inv(ctx, bt, inv_mes[op_i], invs[op_i]);
      }
  }

@@ -3,7 +3,7 @@
 //
 
 #include "hr_util.h"
-#include "btree2v.c"
+#include "btree2v.h"
 
 void hr_static_assert_compile_parameters()
 {

@@ -9,7 +9,7 @@
 #include "od_fifo.h"
 #include <hr_messages.h>
 #include <od_network_context.h>
-#include "btree2v.c"
+#include "btree2v.h"
 
 #define HR_W_ROB_SIZE SESSIONS_PER_THREAD
 #define HR_TRACE_BATCH SESSIONS_PER_THREAD

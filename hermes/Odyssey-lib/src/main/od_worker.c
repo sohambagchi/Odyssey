@@ -6,13 +6,15 @@
 
 #include "od_init_connect.h"
 
-#include "btree2v.c"
+#include "btree2v.h"
 
 
 void *worker(void *arg)
 {
 
-  BtDb *bt = new BtDb();
+  // BtDb *bt = new BtDb();
+  BtDb *bt = (BtDb*)malloc(sizeof(BtDb));
+
   printf("Successfully created Btree instance\n");
 
   struct thread_params params = *(struct thread_params *) arg;
@@ -48,6 +50,6 @@ void *worker(void *arg)
   ///
   main_loop(ctx, bt);
 
-
+  free(bt);
   return NULL;
 };

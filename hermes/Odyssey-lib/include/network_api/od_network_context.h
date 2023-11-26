@@ -12,7 +12,7 @@
 #include "od_fifo.h"
 #include "od_generic_inline_util.h"
 #include "od_templates.h"
-#include "btree2v.c"
+#include "btree2v.h"
 typedef struct context context_t;
 
 typedef void (*insert_helper_t) (context_t *, void*, void *, uint32_t);
