@@ -399,9 +399,9 @@ static inline void bt_init_w_rob_on_loc_inv(context_t *ctx, BtDb *bt,
      if (op->opcode == KVS_OP_GET) {
          // todo: Btree read
         //  stbetree_read(ctx, spl_handle, op);
-         bt_findkey(bt, op->value_to_read - 1, 1);
+        // bt_findkey(bt, op->value_to_read - 1, 1);
      } else if (op->opcode == KVS_OP_PUT) {
-         bt_insert(ctx, bt, op, 0, write_i);
+        // bt_insert(ctx, bt, op, 0, write_i);
      } else if (ENABLE_ASSERTIONS) {
          my_printf(red, "Wrong Opcode in cache: %d, req %d \n", op->opcode, op_i);
          assert(0);
