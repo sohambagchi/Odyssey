@@ -337,7 +337,6 @@ _Noreturn inline void hr_main_loop(context_t *ctx, splinterdb* spl_handle)
   while(true) {
     hr_batch_from_trace_to_KVS(ctx, spl_handle);
     // todo: initiate check when other nodes fail.
-      printf("Does the code ever reach here!");
     ctx_send_broadcasts(ctx, INV_QP_ID);
     ctx_poll_incoming_messages(ctx, INV_QP_ID);
     od_send_acks(ctx, ACK_QP_ID);
