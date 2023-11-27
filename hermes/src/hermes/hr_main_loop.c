@@ -3,7 +3,8 @@
 //
 
 #include "hr_inline_util.h"
-#include "btree2v.h"
+// #include "btree2v.h"
+#include "bplus.h"
 
 static inline void fill_inv(hr_inv_t *inv,
                             ctx_trace_op_t *op,
@@ -18,7 +19,8 @@ static inline void fill_inv(hr_inv_t *inv,
 
 
 
-static inline void hr_batch_from_trace_to_KVS(context_t *ctx, BtDb *bt)
+// static inline void hr_batch_from_trace_to_KVS(context_t *ctx, BtDb *bt)
+static inline void hr_batch_from_trace_to_KVS(context_t *ctx, bp_db_t *tree)
 {
   hr_ctx_t *hr_ctx = (hr_ctx_t *) ctx->appl_ctx;
   ctx_trace_op_t *ops = hr_ctx->ops;
@@ -55,7 +57,7 @@ static inline void hr_batch_from_trace_to_KVS(context_t *ctx, BtDb *bt)
   hr_ctx->last_session = (uint16_t) working_session;
   t_stats[ctx->t_id].total_reqs += op_i;
   // hr_KVS_batch_op_trace(ctx, op_i);
-  hr_bt_batch_op_trace(ctx, op_i, bt);
+  hr_bt_batch_op_trace(ctx, op_i, tree);
   if (!INSERT_WRITES_FROM_KVS) {
     for (int i = 0; i < hr_ctx->ptrs_to_inv->polled_invs; ++i) {
       od_insert_mes(ctx, INV_QP_ID, (uint32_t) INV_SIZE, 1,
@@ -320,11 +322,12 @@ inline bool hr_commit_handler(context_t *ctx)
 }
 
 
-_Noreturn inline void hr_main_loop(context_t *ctx, BtDb *bt)
+// _Noreturn inline void hr_main_loop(context_t *ctx, BtDb *bt)
+_Noreturn inline void hr_main_loop(context_t *ctx, bp_db_t *tree)
 {
   if (ctx->t_id == 0) my_printf(yellow, "Hermes main loop \n");
   while(true) {
-    hr_batch_from_trace_to_KVS(ctx, bt);
+    hr_batch_from_trace_to_KVS(ctx, tree);
     ctx_send_broadcasts(ctx, INV_QP_ID);
     ctx_poll_incoming_messages(ctx, INV_QP_ID);
     od_send_acks(ctx, ACK_QP_ID);

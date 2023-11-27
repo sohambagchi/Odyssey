@@ -13,7 +13,10 @@ set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O3 -std=gnu1x -march=native -Wno-address-of
 #-fno-inline
 #-fsanitize=address -fsanitize=thread
 # -fsanitize=address -fno-inline -fno-omit-frame-pointer
+
 link_directories(/users/sohamb/ankith/Odyssey/Btree-source-code/btree2/)
+link_directories(/users/sohamb/ankith/Odyssey/bplus-tree/include/)
+
 set(COMMON_INCLUDE_DIRS
         /usr/include/
         /usr/include/rdma
@@ -202,7 +205,7 @@ set(CRAQ_SOURCE_FILES
         craq/include/craq/cr_kvs_util.h)
 
 set (BTREE_INCLUDE_DIRS
-	Btree-source-code/btree2/)
+        bplus-tree/include/bplus.h)
 
 add_library(btree SHARED IMPORTED)
 set_target_properties(btree PROPERTIES IMPORTED_LOCATION Btree-source-code/btree2/libbtree.so)

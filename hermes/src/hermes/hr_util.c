@@ -3,7 +3,8 @@
 //
 
 #include "hr_util.h"
-#include "btree2v.h"
+// #include "btree2v.h"
+#include "bplus.h"
 
 void hr_static_assert_compile_parameters()
 {
@@ -51,7 +52,8 @@ void hr_init_send_fifos(context_t *ctx)
 
 }
 
-void hr_qp_meta_mfs(context_t *ctx, BtDb *bt)
+// void hr_qp_meta_mfs(context_t *ctx, BtDb *bt)
+void hr_qp_meta_mfs(context_t *ctx, bp_db_t *tree)
 {
   mf_t *mfs = calloc(QP_NUM, sizeof(mf_t));
 
@@ -80,7 +82,8 @@ void hr_qp_meta_mfs(context_t *ctx, BtDb *bt)
   free(mfs);
 }
 
-void hr_init_qp_meta(context_t *ctx, BtDb *bt)
+// void hr_init_qp_meta(context_t *ctx, BtDb *bt)
+void hr_init_qp_meta(context_t *ctx, bp_db_t *tree)
 {
   per_qp_meta_t *qp_meta = ctx->qp_meta;
   create_per_qp_meta(&qp_meta[INV_QP_ID], MAX_INV_WRS,
@@ -106,7 +109,7 @@ void hr_init_qp_meta(context_t *ctx, BtDb *bt)
                      "send commits", "recv commits");
 
 
-  hr_qp_meta_mfs(ctx, bt);
+  hr_qp_meta_mfs(ctx, tree);
   hr_init_send_fifos(ctx);
 }
 
