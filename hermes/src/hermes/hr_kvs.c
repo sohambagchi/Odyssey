@@ -359,13 +359,13 @@ static inline void bt_init_w_rob_on_loc_inv(context_t *ctx, bp_db_t *tree,
      // TODO: Ankith - Insert according to btree2v.h bt_insertkey()
 
     //  BTERR bte;
-
+    int ret;
     //  bte = bt_insertkey (bt, op->value_to_write - 1, 1, 0, 0, 0);
     ret = bp_set(tree, op->value_to_write - 1, op->value_to_write);
 
 
     //  success = (bte == BTERR_ok ? true : false);
-    success = true
+    success = true;
      if (success) {
          //! something is happening here
          bt_init_w_rob_on_loc_inv(ctx, tree, op, 0, *write_i);
@@ -393,7 +393,8 @@ static inline void bt_init_w_rob_on_loc_inv(context_t *ctx, bp_db_t *tree,
     int val = bp_get(tree, op->value_to_read - 1, op->value_to_read);
 
      //! handling scenarios where key does or does not exist
-     success = val == op->value_to_read ? false : true;
+    //  success = val == op->value_to_read ? false : true;
+    success = (val != op->value_to_read);
      //! if we succeed
      if (success) {
          hr_ctx_t *hr_ctx = (hr_ctx_t*) ctx->appl_ctx;
@@ -407,7 +408,7 @@ static inline void bt_init_w_rob_on_loc_inv(context_t *ctx, bp_db_t *tree,
 
 //  static inline void handle_trace_reqs_bt(context_t *ctx, BtDb *bt, ctx_trace_op_t *op,
 //                                           uint32_t *write_i, uint16_t op_i) {
- static inline void handle_trace_reqs_bt(context_t *ctx, bp_db_t *treee, ctx_trace_op_t *op,
+ static inline void handle_trace_reqs_bt(context_t *ctx, bp_db_t *tree, ctx_trace_op_t *op,
                                           uint32_t *write_i, uint16_t op_i) {
      if (op->opcode == KVS_OP_GET) {
          // todo: Btree read

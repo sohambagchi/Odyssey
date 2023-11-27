@@ -3,7 +3,7 @@ project(odyssey)
 
 set(odyssey_VERSION_MAJOR 1)
 
-#include_directories(/Btree-source-code/btree2)
+#include_directories(/bplus-tree/include)
 
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O3 -std=gnu1x -march=native -Wno-address-of-packed-member \
 -Wno-format-truncation -D_GNU_SOURCE  -g ")
@@ -13,10 +13,7 @@ set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O3 -std=gnu1x -march=native -Wno-address-of
 #-fno-inline
 #-fsanitize=address -fsanitize=thread
 # -fsanitize=address -fno-inline -fno-omit-frame-pointer
-
-link_directories(/users/sohamb/ankith/Odyssey/Btree-source-code/btree2/)
 link_directories(/users/sohamb/ankith/Odyssey/bplus-tree/include/)
-
 set(COMMON_INCLUDE_DIRS
         /usr/include/
         /usr/include/rdma
@@ -205,10 +202,10 @@ set(CRAQ_SOURCE_FILES
         craq/include/craq/cr_kvs_util.h)
 
 set (BTREE_INCLUDE_DIRS
-        bplus-tree/include/bplus.h)
+        bplus-tree/include/)
 
 add_library(btree SHARED IMPORTED)
-set_target_properties(btree PROPERTIES IMPORTED_LOCATION Btree-source-code/btree2/libbtree.so)
+set_target_properties(btree PROPERTIES IMPORTED_LOCATION bplus-tree/libbplustree.so)
 
 #set(CMAKE_BUILD_TYPE Release)
 
@@ -242,12 +239,12 @@ set_target_properties(hermes PROPERTIES COMPILE_FLAGS -DHERMES)
 set_target_properties(cht PROPERTIES COMPILE_FLAGS -DCHT)
 set_target_properties(craq PROPERTIES COMPILE_FLAGS -DCRAQ)
 set_target_properties(paxos PROPERTIES COMPILE_FLAGS -DPAXOS)
-set_target_properties(btree PROPERTIES IMPORTED_LOCATION Btree-source-code/btree2/libbtree.so)
+set_target_properties(btree PROPERTIES IMPORTED_LOCATION bplus-tree/libbplustree.so)
 
 target_link_libraries(derecho pthread ibverbs rt numa rdmacm)
 target_link_libraries(kite pthread ibverbs rt numa rdmacm)
 target_link_libraries(zookeeper pthread ibverbs rt numa rdmacm)
-target_link_libraries(hermes pthread ibverbs rt numa rdmacm /users/sohamb/ankith/Odyssey/Btree-source-code/btree2/libbtree.so)
+target_link_libraries(hermes pthread ibverbs rt numa rdmacm /users/sohamb/ankith/Odyssey/bplus-tree/libbplustree.so)
 target_link_libraries(cht pthread ibverbs rt numa rdmacm)
 target_link_libraries(craq pthread ibverbs rt numa rdmacm)
 target_link_libraries(paxos pthread ibverbs rt numa rdmacm)
