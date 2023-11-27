@@ -361,7 +361,7 @@ static inline void bt_init_w_rob_on_loc_inv(context_t *ctx, bp_db_t *tree,
     //  BTERR bte;
 
     //  bte = bt_insertkey (bt, op->value_to_write - 1, 1, 0, 0, 0);
-    ret = bp_update(tree, op->value_to_write - 1, op->value_to_write, 0);
+    ret = bp_set(tree, op->value_to_write - 1, op->value_to_write);
 
 
     //  success = (bte == BTERR_ok ? true : false);
@@ -417,7 +417,7 @@ static inline void bt_init_w_rob_on_loc_inv(context_t *ctx, bp_db_t *tree,
 
      } else if (op->opcode == KVS_OP_PUT) {
         // bt_insert(ctx, bt, op, 0, write_i);
-        bp_update(tree, op->value_to_write - 1, op->value_to_write, 0);
+        bp_set(tree, op->value_to_write - 1, op->value_to_write);
 
      } else if (ENABLE_ASSERTIONS) {
          my_printf(red, "Wrong Opcode in cache: %d, req %d \n", op->opcode, op_i);
