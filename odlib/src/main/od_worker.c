@@ -12,8 +12,12 @@ void *worker(void *arg)
 
   // BtDb *bt = (BtDb*)malloc(sizeof(BtDb));
   bp_db_t *tree;
-  bp_open(&tree, "bplus.bp");
+  int ret = bp_open(&tree, "bplus.bp");
 
+  if (ret != 0) {
+      printf("Unable to create bplustree instance\n");
+      return 1;
+  }
   printf("Successfully created Btree instance\n");
 
   struct thread_params params = *(struct thread_params *) arg;
