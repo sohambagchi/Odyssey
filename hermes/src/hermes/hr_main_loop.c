@@ -57,7 +57,9 @@ static inline void hr_batch_from_trace_to_KVS(context_t *ctx, bp_db_t *tree)
   hr_ctx->last_session = (uint16_t) working_session;
   t_stats[ctx->t_id].total_reqs += op_i;
   // hr_KVS_batch_op_trace(ctx, op_i);
+  printf("xx");
   hr_bt_batch_op_trace(ctx, op_i, tree);
+  printf("yy");
   if (!INSERT_WRITES_FROM_KVS) {
     for (int i = 0; i < hr_ctx->ptrs_to_inv->polled_invs; ++i) {
       od_insert_mes(ctx, INV_QP_ID, (uint32_t) INV_SIZE, 1,
