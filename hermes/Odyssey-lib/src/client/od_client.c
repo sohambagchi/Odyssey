@@ -101,6 +101,7 @@ static inline void clt_stop_latency_mes(clt_trace_t* tr_info,
       (tr_info->lat_info->measured_req_flag == NO_REQ)) return;
 
   if (tr_info->lat_info->measured_sess_id == sess_id) {
+      printf("Report latency\n");
     report_latency(tr_info->lat_info);
 
     tr_info->lat_info->measured_sess_id++;
