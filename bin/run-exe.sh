@@ -117,7 +117,7 @@ sleep 1
 #
 #blue "Running  worker threads"
 # sudo LD_LIBRARY_PATH=/usr/local/lib/ -E \
-	./${EXEC} \
+valgrind	./${EXEC} \
 	--all-ips ${remoteIPs[@]} \
 	--machine-id $machine_id \
 	--write-ratio ${WRITE_RATIO} \
