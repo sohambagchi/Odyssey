@@ -22,6 +22,7 @@ static inline void fill_inv(hr_inv_t *inv,
 // static inline void hr_batch_from_trace_to_KVS(context_t *ctx, BtDb *bt)
 static inline void hr_batch_from_trace_to_KVS(context_t *ctx, bp_db_t *tree)
 {
+  printf("Reached here");
   hr_ctx_t *hr_ctx = (hr_ctx_t *) ctx->appl_ctx;
   ctx_trace_op_t *ops = hr_ctx->ops;
   trace_t *trace = hr_ctx->trace;
