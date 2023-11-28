@@ -41,6 +41,6 @@ bool hr_commit_handler(context_t *ctx);
 ////---------------------------------------------------------------------------*/
 
 // _Noreturn void hr_main_loop(context_t *ctx, BtDb *bt);
-_Noreturn void hr_main_loop(context_t *ctx, bp_db_t *tree);
+_Noreturn void hr_main_loop(context_t *ctx, bp_db_t tree);
 
 #endif //ODYSSEY_HR_INLINE_UTIL_H

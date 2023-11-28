@@ -20,7 +20,7 @@ static inline void fill_inv(hr_inv_t *inv,
 
 
 // static inline void hr_batch_from_trace_to_KVS(context_t *ctx, BtDb *bt)
-static inline void hr_batch_from_trace_to_KVS(context_t *ctx, bp_db_t *tree)
+static inline void hr_batch_from_trace_to_KVS(context_t *ctx, bp_db_t tree)
 {
   hr_ctx_t *hr_ctx = (hr_ctx_t *) ctx->appl_ctx;
   ctx_trace_op_t *ops = hr_ctx->ops;
@@ -325,7 +325,7 @@ inline bool hr_commit_handler(context_t *ctx)
 
 
 // _Noreturn inline void hr_main_loop(context_t *ctx, BtDb *bt)
-_Noreturn inline void hr_main_loop(context_t *ctx, bp_db_t *tree)
+_Noreturn inline void hr_main_loop(context_t *ctx, bp_db_t tree)
 {
   if (ctx->t_id == 0) my_printf(yellow, "Hermes main loop \n");
   while(true) {

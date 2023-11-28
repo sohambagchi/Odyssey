@@ -13,8 +13,8 @@
 
 void *worker(void *arg)
 {
-    bp_db_t *tree;
-    int ret = bp_open(tree, "bplus.bp");
+    bp_db_t tree;
+    int ret = bp_open(&tree, "bplus.bp");
   // BtDb *bt = new BtDb();
   // BtDb *bt = (BtDb*)malloc(sizeof(BtDb));
   // bp_db_t *tree = new bp_db_t();
@@ -58,7 +58,7 @@ void *worker(void *arg)
   ///
   printf("prnit");
 
-  main_loop(ctx, tree);
+  main_loop(ctx, &tree);
 
   free(tree);
   return NULL;
