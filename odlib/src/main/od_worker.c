@@ -12,17 +12,13 @@ void *worker(void *arg)
 
   // BtDb *bt = (BtDb*)malloc(sizeof(BtDb));
   bp_db_t *tree;
-  int ret = bp_open(&tree, "bplus.bp");
+  int ret = bp_open(tree, "bplus.bp");
 
   if (ret != 0) {
       printf("Unable to create bplustree instance\n");
       return 1;
   }
   printf("Successfully created Btree instance\n");
-    if (ret != 0) {
-        printf("Unable to create bplustree instance\n");
-        return 1;
-    }
 
   struct thread_params params = *(struct thread_params *) arg;
   uint16_t t_id = (uint16_t) params.id;
