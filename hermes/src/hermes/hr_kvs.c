@@ -5,6 +5,7 @@
 #include "hr_kvs_util.h"
 // #include "btree2v.h"
 #include "bplus.h"
+#include <stdio.h>
 
 
 ///* ---------------------------------------------------------------------------
