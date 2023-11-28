@@ -94,22 +94,23 @@ static inline void apply_writes(context_t *ctx,
       }
       mica_op_t *kv_ptr = w_rob->kv_ptr;
       //lock_seqlock(&kv_ptr->seqlock);
-      {
-        //assert(kv_ptr->m_id == w_rob->m_id);
-        if (ENABLE_ASSERTIONS) assert(kv_ptr->version > 0);
-        if (kv_ptr->version == w_rob->version &&
-            kv_ptr->m_id == w_rob->m_id) {
-          if (ENABLE_ASSERTIONS) {
-            if (w_rob->m_id == ctx->m_id)
-              assert(kv_ptr->state == HR_W);
-            else
-              assert(kv_ptr->state == HR_INV ||
-                     kv_ptr->state == HR_INV_T);
-          }
-          kv_ptr->state = HR_V;
-        }
-
-      }
+//      {
+//        //assert(kv_ptr->m_id == w_rob->m_id);
+//        if (ENABLE_ASSERTIONS) assert(kv_ptr->version > 0);
+//        if (kv_ptr->version == w_rob->version &&
+//            kv_ptr->m_id == w_rob->m_id) {
+//          if (ENABLE_ASSERTIONS) {
+//            if (w_rob->m_id == ctx->m_id)
+//              assert(kv_ptr->state == HR_W);
+//            else
+//              assert(kv_ptr->state == HR_INV ||
+//                     kv_ptr->state == HR_INV_T);
+//          }
+//          kv_ptr->state = HR_V;
+//        }
+//
+//      }
+        kv_ptr->state = HR_V;
       //unlock_seqlock(&kv_ptr->seqlock);
     }
   }
