@@ -330,6 +330,7 @@ _Noreturn inline void hr_main_loop(context_t *ctx, bp_db_t *tree)
 {
   if (ctx->t_id == 0) my_printf(yellow, "Hermes main loop \n");
   while(true) {
+    print("reached?");
     hr_batch_from_trace_to_KVS(ctx, tree);
     printf("Is it reaching this?");
     ctx_send_broadcasts(ctx, INV_QP_ID);
