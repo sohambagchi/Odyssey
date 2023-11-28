@@ -361,7 +361,9 @@ static inline void bt_init_w_rob_on_loc_inv(context_t *ctx, bp_db_t *tree,
     //  BTERR bte;
     int ret;
     //  bte = bt_insertkey (bt, op->value_to_write - 1, 1, 0, 0, 0);
-    ret = bp_set(tree, op->value_to_write - 1, op->value_to_write);
+    char* key = (char*)(op->value_to_read - 1)
+    char* value = (char*)(op->value_to_read)
+    ret = bp_sets(tree, op->value_to_write - 1, op->value_to_write);
 
 
     //  success = (bte == BTERR_ok ? true : false);
@@ -390,7 +392,9 @@ static inline void bt_init_w_rob_on_loc_inv(context_t *ctx, bp_db_t *tree,
      }
      
     // unsigned long long row_id = bt_findkey(bt, op->value_to_read - 1, 1);
-    int val = bp_get(tree, op->value_to_read - 1, op->value_to_read);
+    char* key = (char*)(op->value_to_read - 1)
+    char* value = (char*)(op->value_to_read)
+    int val = bp_gets(tree, key, value);
 
      //! handling scenarios where key does or does not exist
     //  success = val == op->value_to_read ? false : true;
@@ -414,13 +418,21 @@ static inline void bt_init_w_rob_on_loc_inv(context_t *ctx, bp_db_t *tree,
          // todo: Btree read
         //  stbetree_read(ctx, spl_handle, op);
         // bt_findkey(bt, op->value_to_read - 1, 1);
-        bp_get(tree, op->value_to_read - 1, op->value_to_read);
-        printf("Completed get function");
+        // bp_gets(tree, op->value_to_read - 1, op->value_to_read);
+        char* key = (char*)(op->value_to_read - 1)
+        char* value = (char*)(op->value_to_read)
+        int val = bp_gets(tree, key, value);
+
+        my_printf(cyan, "Completed get function\n");
 
      } else if (op->opcode == KVS_OP_PUT) {
         // bt_insert(ctx, bt, op, 0, write_i);
-        bp_set(tree, op->value_to_write - 1, op->value_to_write);
-        printf("Completed set function");
+        // bp_set(tree, op->value_to_write - 1, op->value_to_write);
+        char* key = (char*)(op->value_to_read - 1)
+        char* value = (char*)(op->value_to_read)
+        int val = bp_sets(tree, key, value);
+
+        my_printf(cyan, "Completed set function\n");
 
      } else if (ENABLE_ASSERTIONS) {
          my_printf(red, "Wrong Opcode in cache: %d, req %d \n", op->opcode, op_i);
