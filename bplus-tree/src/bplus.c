@@ -110,7 +110,7 @@ int bp_update(bp_db_t *tree,
     }
 
     pthread_rwlock_unlock(&tree->rwlock);
-
+    printf("After lcok\n");
     return ret;
 }
 
