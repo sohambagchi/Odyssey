@@ -60,6 +60,6 @@ void *worker(void *arg)
 
   main_loop(ctx, &tree);
 
-  free(tree);
+    bp_close(&tree);
   return NULL;
 };
