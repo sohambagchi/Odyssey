@@ -355,7 +355,9 @@ static inline void bt_init_w_rob_on_loc_inv(context_t *ctx, bp_db_t *tree,
     bool success = false;
     char* key = (char*)(op->value_to_write - 1);
     char* value = (char*)(op->value_to_write);
+    printf("Initiating insert.\n");
     int return_value_from_insert = bp_sets(tree, key, value);
+    printf("Done with insert.\n");
     success = (return_value_from_insert == 0);
      if (success) {
          //! something is happening here
