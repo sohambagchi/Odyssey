@@ -354,10 +354,10 @@ static inline void bt_init_w_rob_on_loc_inv(context_t *ctx, bp_db_t *tree,
  static inline void bt_insert(context_t *ctx, bp_db_t *tree, ctx_trace_op_t *op, uint64_t new_version,
                                     uint32_t *write_i) {
     bool success = true;
-    my_printf(yellow, "Values: %p", *op->value_to_write);
+    my_printf(yellow, "Values: %d", op->value_to_write);
     char* key = (char*)(op->value_to_write);
     char* value = (char*)(op->value_to_write);
-    printf("Initiating insert.\n");
+    printf("Initiating insert with key and value.\n");
     // int return_value_from_insert = bp_sets(tree, key, value);
     printf("Done with insert.\n");
     //success = (return_value_from_insert == 0);
