@@ -21,7 +21,7 @@ void *worker(void *arg)
 
     if (ret != 0) {
         printf("Unable to create bplustree instance\n");
-        return 1;
+        return;
     }
   printf("Successfully created Btree instance\n");
 
