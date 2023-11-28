@@ -361,9 +361,9 @@ static inline void bt_init_w_rob_on_loc_inv(context_t *ctx, bp_db_t *tree,
     //  BTERR bte;
     int ret;
     //  bte = bt_insertkey (bt, op->value_to_write - 1, 1, 0, 0, 0);
-    char* key = (char*)(op->value_to_read - 1)
-    char* value = (char*)(op->value_to_read)
-    ret = bp_sets(tree, op->value_to_write - 1, op->value_to_write);
+    char* key = (char*)(op->value_to_read - 1);
+    char* value = (char*)(op->value_to_read);
+    ret = bp_sets(tree, key, value);
 
 
     //  success = (bte == BTERR_ok ? true : false);
@@ -392,8 +392,8 @@ static inline void bt_init_w_rob_on_loc_inv(context_t *ctx, bp_db_t *tree,
      }
      
     // unsigned long long row_id = bt_findkey(bt, op->value_to_read - 1, 1);
-    char* key = (char*)(op->value_to_read - 1)
-    char* value = (char*)(op->value_to_read)
+    char* key = (char*)(op->value_to_read - 1);
+    char* value = (char*)(op->value_to_read);
     int val = bp_gets(tree, key, value);
 
      //! handling scenarios where key does or does not exist
@@ -419,8 +419,8 @@ static inline void bt_init_w_rob_on_loc_inv(context_t *ctx, bp_db_t *tree,
         //  stbetree_read(ctx, spl_handle, op);
         // bt_findkey(bt, op->value_to_read - 1, 1);
         // bp_gets(tree, op->value_to_read - 1, op->value_to_read);
-        char* key = (char*)(op->value_to_read - 1)
-        char* value = (char*)(op->value_to_read)
+        char* key = (char*)(op->value_to_read - 1);
+        char* value = (char*)(op->value_to_read);
         int val = bp_gets(tree, key, value);
 
         my_printf(cyan, "Completed get function\n");
@@ -428,8 +428,8 @@ static inline void bt_init_w_rob_on_loc_inv(context_t *ctx, bp_db_t *tree,
      } else if (op->opcode == KVS_OP_PUT) {
         // bt_insert(ctx, bt, op, 0, write_i);
         // bp_set(tree, op->value_to_write - 1, op->value_to_write);
-        char* key = (char*)(op->value_to_read - 1)
-        char* value = (char*)(op->value_to_read)
+        char* key = (char*)(op->value_to_read - 1);
+        char* value = (char*)(op->value_to_read);
         int val = bp_sets(tree, key, value);
 
         my_printf(cyan, "Completed set function\n");
