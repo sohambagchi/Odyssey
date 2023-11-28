@@ -381,7 +381,7 @@ static inline void bt_init_w_rob_on_loc_inv(context_t *ctx, bp_db_t *tree,
      }
     char* key = (char*)(op->value_to_read);
     bp_value_t bp_value;
-    int return_value_from_read = bp_gets(tree, key, &value);
+    int return_value_from_read = bp_gets(tree, key, &bp_value);
 
      //! handling scenarios where key does or does not exist
     //  success = val == op->value_to_read ? false : true;
