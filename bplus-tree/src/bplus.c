@@ -301,6 +301,7 @@ int bp_updates(bp_db_t *tree,
 
 int bp_sets(bp_db_t *tree, const char *key, const char *value)
 {
+    printf("Tree is: %p\n", tree);
     return bp_updates(tree, key, value, NULL, NULL);
 }
 
