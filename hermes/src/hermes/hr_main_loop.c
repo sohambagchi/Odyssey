@@ -93,7 +93,7 @@ static inline void apply_writes(context_t *ctx,
         assert(w_rob != NULL);
       }
       mica_op_t *kv_ptr = w_rob->kv_ptr;
-      lock_seqlock(&kv_ptr->seqlock);
+      //lock_seqlock(&kv_ptr->seqlock);
       {
         //assert(kv_ptr->m_id == w_rob->m_id);
         if (ENABLE_ASSERTIONS) assert(kv_ptr->version > 0);
@@ -110,7 +110,7 @@ static inline void apply_writes(context_t *ctx,
         }
 
       }
-      unlock_seqlock(&kv_ptr->seqlock);
+      //unlock_seqlock(&kv_ptr->seqlock);
     }
   }
 }
