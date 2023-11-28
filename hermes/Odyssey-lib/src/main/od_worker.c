@@ -18,7 +18,6 @@ void *worker(void *arg)
   // BtDb *bt = new BtDb();
   // BtDb *bt = (BtDb*)malloc(sizeof(BtDb));
   // bp_db_t *tree = new bp_db_t();
-  bp_db_t *tree = (bp_db_t*)malloc(sizeof(bp_db_t));
 
     if (ret != 0) {
         printf("Unable to create bplustree instance\n");
