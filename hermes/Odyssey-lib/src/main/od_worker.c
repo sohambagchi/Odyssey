@@ -52,6 +52,8 @@ void *worker(void *arg)
       "%d sessions \n", t_id, SESSIONS_PER_THREAD);
 
   ///
+  printf("prnit");
+
   main_loop(ctx, tree);
 
   free(tree);
