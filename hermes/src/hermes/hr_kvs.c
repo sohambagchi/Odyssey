@@ -360,9 +360,13 @@ static inline void handle_trace_reqs_stb(context_t *ctx, splinterdb *spl_handle,
                                          uint32_t *write_i, uint16_t op_i) {
     if (op->opcode == KVS_OP_GET) {
         // todo: splinterdb read
+        printf("Initiating read\n");
         stbetree_read(ctx, spl_handle, op);
+        printf("Done with read\n");
     } else if (op->opcode == KVS_OP_PUT) {
+        printf("Initiating write\n");
         stbetree_insert(ctx, spl_handle, op, 0, write_i);
+        printf("Done with write\n");
     } else if (ENABLE_ASSERTIONS) {
         my_printf(red, "wrong Opcode in cache: %d, req %d \n", op->opcode, op_i);
         assert(0);
