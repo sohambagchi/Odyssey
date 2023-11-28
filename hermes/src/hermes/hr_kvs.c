@@ -226,9 +226,8 @@ static inline void hr_local_inv(context_t *ctx,
 static inline void stbetree_insert(context_t *ctx, splinterdb* spl_handle, ctx_trace_op_t *op, uint64_t new_version,
                                    uint32_t *write_i) {
     bool success = false;
-    char val1[4], val2[4];
-    sprintf(val1, "%hhn", op->value_to_write - 1);
-    sprintf(val2, "%hhn", op->value_to_write);
+    char *val1 = (char*) (op->value_to_write);
+    char* val2 = (char*) (op->value_to_write);
     slice key   = slice_create((size_t)strlen(val1), val1);
     slice value = slice_create((size_t)strlen(val2), val2);
     //! insert
