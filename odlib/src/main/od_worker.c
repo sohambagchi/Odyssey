@@ -12,11 +12,11 @@ void *worker(void *arg)
 
   // BtDb *bt = (BtDb*)malloc(sizeof(BtDb));
   bp_db_t tree;
-  int ret = bp_open(tree, "bplus.bp");
+  int ret = bp_open(&tree, "bplus.bp");
 
   if (ret != 0) {
       printf("Unable to create bplustree instance\n");
-      return 1;
+      return;
   }
   printf("Successfully created Btree instance\n");
 
