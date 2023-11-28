@@ -9,6 +9,7 @@
 #include "od_stats.h"
 #include <getopt.h>
 #include "od_kvs.h"
+#include <stdio.h>
 
 static void od_generic_static_assert_compile_parameters()
 {
