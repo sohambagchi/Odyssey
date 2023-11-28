@@ -353,16 +353,17 @@ static inline void bt_init_w_rob_on_loc_inv(context_t *ctx, bp_db_t *tree,
 
  static inline void bt_insert(context_t *ctx, bp_db_t *tree, ctx_trace_op_t *op, uint64_t new_version,
                                     uint32_t *write_i) {
-    bool success = true;
+    bool success = false;
     my_printf(yellow, "Values: %d\n", op->value_to_write);
     char* key = (char*)(op->value_to_write);
     char* value = (char*)(op->value_to_write);
     printf("Initiating insert with key and value.\n");
-    // int return_value_from_insert = bp_sets(tree, key, value);
+    int return_value_from_insert = bp_sets(tree, key, value);
     printf("Done with insert.\n");
-    //success = (return_value_from_insert == 0);
+    success = (return_value_from_insert == 0);
      if (success) {
          //! something is happening here
+         printf("Success.\n");
          bt_init_w_rob_on_loc_inv(ctx, tree, op, 0, *write_i);
          if (INSERT_WRITES_FROM_KVS)
              od_insert_mes(ctx, INV_QP_ID, (uint32_t) INV_SIZE, 1, false, op, 0, 0);
@@ -378,18 +379,18 @@ static inline void bt_init_w_rob_on_loc_inv(context_t *ctx, bp_db_t *tree,
 
 //  static inline void bt_read(context_t *ctx, BtDb *bt, ctx_trace_op_t *op) {
  static inline void bt_read(context_t *ctx, bp_db_t *tree, ctx_trace_op_t *op) {
-     bool success = true;
+     bool success = false;
      if (ENABLE_ASSERTIONS) {
          assert(op->value_to_read != NULL);
          assert(tree != NULL);
      }
     char* key = (char*)(op->value_to_read);
-//    bp_value_t bp_value;
-//    int return_value_from_read = bp_gets(tree, key, &bp_value);
+    bp_value_t bp_value;
+    int return_value_from_read = bp_gets(tree, key, &bp_value);
 
      //! handling scenarios where key does or does not exist
     //  success = val == op->value_to_read ? false : true;
-    //success = (return_value_from_read == 0);
+    success = (return_value_from_read == 0);
      //! if we succeed
      if (success) {
          hr_ctx_t *hr_ctx = (hr_ctx_t*) ctx->appl_ctx;
