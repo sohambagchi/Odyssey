@@ -11,7 +11,8 @@ void *worker(void *arg)
 {
 
   // BtDb *bt = (BtDb*)malloc(sizeof(BtDb));
-  bp_db_t *tree = (bp_db_t*)malloc(sizeof(bp_db_t));
+  bp_db_t *tree;
+  bp_open(&tree, "bplus.bp");
 
   printf("Successfully created Btree instance\n");
 
