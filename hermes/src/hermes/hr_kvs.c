@@ -354,7 +354,7 @@ static inline void bt_init_w_rob_on_loc_inv(context_t *ctx, bp_db_t *tree,
  static inline void bt_insert(context_t *ctx, bp_db_t *tree, ctx_trace_op_t *op, uint64_t new_version,
                                     uint32_t *write_i) {
     bool success = true;
-    my_printf(yellow, "Values: %d", op->value_to_write);
+    my_printf(yellow, "Values: %d\n", op->value_to_write);
     char* key = (char*)(op->value_to_write);
     char* value = (char*)(op->value_to_write);
     printf("Initiating insert with key and value.\n");
@@ -378,14 +378,14 @@ static inline void bt_init_w_rob_on_loc_inv(context_t *ctx, bp_db_t *tree,
 
 //  static inline void bt_read(context_t *ctx, BtDb *bt, ctx_trace_op_t *op) {
  static inline void bt_read(context_t *ctx, bp_db_t *tree, ctx_trace_op_t *op) {
-     bool success = false;
+     bool success = true;
      if (ENABLE_ASSERTIONS) {
          assert(op->value_to_read != NULL);
          assert(tree != NULL);
      }
     char* key = (char*)(op->value_to_read);
-    bp_value_t bp_value;
-    int return_value_from_read = bp_gets(tree, key, &bp_value);
+//    bp_value_t bp_value;
+//    int return_value_from_read = bp_gets(tree, key, &bp_value);
 
      //! handling scenarios where key does or does not exist
     //  success = val == op->value_to_read ? false : true;
