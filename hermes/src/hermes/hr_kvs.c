@@ -350,24 +350,13 @@ static inline void bt_init_w_rob_on_loc_inv(context_t *ctx, bp_db_t *tree,
      fifo_increm_capacity(hr_ctx->buf_ops);
  }
 
-//  static inline void bt_insert(context_t *ctx, BtDb *bt, ctx_trace_op_t *op, uint64_t new_version,
-//                                     uint32_t *write_i) {
  static inline void bt_insert(context_t *ctx, bp_db_t *tree, ctx_trace_op_t *op, uint64_t new_version,
                                     uint32_t *write_i) {
-     bool success = false;
-    //  uint64_t new_version;
-     // TODO: Ankith - Insert according to btree2v.h bt_insertkey()
-
-    //  BTERR bte;
-    int ret;
-    //  bte = bt_insertkey (bt, op->value_to_write - 1, 1, 0, 0, 0);
-    char* key = (char*)(op->value_to_read - 1);
-    char* value = (char*)(op->value_to_read);
-    ret = bp_sets(tree, key, value);
-
-
-    //  success = (bte == BTERR_ok ? true : false);
-    success = true;
+    bool success = false;
+    char* key = (char*)(op->value_to_write - 1);
+    char* value = (char*)(op->value_to_write);
+    int return_value_from_insert = bp_sets(tree, key, value);
+    success = (return_value_from_insert == 0);
      if (success) {
          //! something is happening here
          bt_init_w_rob_on_loc_inv(ctx, tree, op, 0, *write_i);
@@ -390,15 +379,13 @@ static inline void bt_init_w_rob_on_loc_inv(context_t *ctx, bp_db_t *tree,
          assert(op->value_to_read != NULL);
          assert(tree != NULL);
      }
-     
-    // unsigned long long row_id = bt_findkey(bt, op->value_to_read - 1, 1);
-    char* key = (char*)(op->value_to_read - 1);
-    char* value = (char*)(op->value_to_read);
-    int val = bp_gets(tree, key, value);
+    char* key = (char*)(op->value_to_read);
+    bp_value_t bp_value;
+    int return_value_from_read = bp_gets(tree, key, &value);
 
      //! handling scenarios where key does or does not exist
     //  success = val == op->value_to_read ? false : true;
-    success = (val != op->value_to_read);
+    success = (return_value_from_read == 0);
      //! if we succeed
      if (success) {
          hr_ctx_t *hr_ctx = (hr_ctx_t*) ctx->appl_ctx;
@@ -415,25 +402,9 @@ static inline void bt_init_w_rob_on_loc_inv(context_t *ctx, bp_db_t *tree,
  static inline void handle_trace_reqs_bt(context_t *ctx, bp_db_t *tree, ctx_trace_op_t *op,
                                           uint32_t *write_i, uint16_t op_i) {
      if (op->opcode == KVS_OP_GET) {
-         // todo: Btree read
-        //  stbetree_read(ctx, spl_handle, op);
-        // bt_findkey(bt, op->value_to_read - 1, 1);
-        // bp_gets(tree, op->value_to_read - 1, op->value_to_read);
-        char* key = (char*)(op->value_to_read - 1);
-        char* value = (char*)(op->value_to_read);
-        int val = bp_gets(tree, key, value);
-
-        my_printf(cyan, "Completed get function\n");
-
+         bt_read(ctx, tree, op);
      } else if (op->opcode == KVS_OP_PUT) {
-        // bt_insert(ctx, bt, op, 0, write_i);
-        // bp_set(tree, op->value_to_write - 1, op->value_to_write);
-        char* key = (char*)(op->value_to_read - 1);
-        char* value = (char*)(op->value_to_read);
-        int val = bp_sets(tree, key, value);
-
-        my_printf(cyan, "Completed set function\n");
-
+         bt_insert(ctx, tree, op, 0, write_i);
      } else if (ENABLE_ASSERTIONS) {
          my_printf(red, "Wrong Opcode in cache: %d, req %d \n", op->opcode, op_i);
          assert(0);
