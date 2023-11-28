@@ -476,7 +476,9 @@ static inline void bt_init_w_rob_on_loc_inv(context_t *ctx, bp_db_t *tree,
      for (op_i = 0; op_i < buf_ops_num; ++op_i) {
          buf_op_t *buf_op = (buf_op_t *) get_fifo_pull_slot(hr_ctx->buf_ops);
          check_state_with_allowed_flags(3, buf_op->op.opcode, KVS_OP_PUT, KVS_OP_GET);
+         my_printf(cyan, "Sending requests\n");
          handle_trace_reqs_bt(ctx, tree, &buf_op->op, &write_i, op_i);
+         my_printf(cyan, "Done\n");
          // handle_trace_reqs(ctx, buf_op->kv_ptr, &buf_op->op, &write_i, op_i);
          fifo_incr_pull_ptr(hr_ctx->buf_ops);
          fifo_decrem_capacity(hr_ctx->buf_ops);
