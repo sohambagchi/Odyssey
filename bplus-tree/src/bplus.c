@@ -101,7 +101,7 @@ int bp_update(bp_db_t *tree,
               void *arg)
 {
     int ret;
-
+    printf("Before lock\n");
     pthread_rwlock_wrlock(&tree->rwlock);
     printf("Is the code reaching here then?\n");
     ret = bp__page_insert(tree, tree->head.page, key, value, update_cb, arg);
