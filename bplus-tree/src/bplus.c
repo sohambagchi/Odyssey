@@ -294,6 +294,7 @@ int bp_updates(bp_db_t *tree,
     BP__STOVAL(key, bkey);
     BP__STOVAL(value, bvalue);
 
+    printf("Is the code reaching here?\n");
     return bp_update(tree, &bkey, &bvalue, update_cb, arg);
 }
 
