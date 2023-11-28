@@ -382,7 +382,7 @@ static inline void bt_init_w_rob_on_loc_inv(context_t *ctx, bp_db_t tree,
      bool success = false;
      if (ENABLE_ASSERTIONS) {
          assert(op->value_to_read != NULL);
-         assert(tree != NULL);
+         assert(&tree != NULL);
      }
     char* key = (char*)(op->value_to_read);
     bp_value_t bp_value;
