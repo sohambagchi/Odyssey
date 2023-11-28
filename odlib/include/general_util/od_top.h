@@ -107,7 +107,7 @@ typedef struct key mica_key_t;
 #define MACHINE_THAT_SLEEPS 1
 
 //! todo: maybe this is why we cant see the metrics
-#define MEASURE_LATENCY 0
+#define MEASURE_LATENCY 1
 #define LATENCY_MACHINE 0
 #define LATENCY_THREAD 0
 #define MEASURE_READ_LATENCY 2 // 2 means mixed
