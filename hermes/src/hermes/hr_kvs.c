@@ -354,7 +354,7 @@ static inline void bt_init_w_rob_on_loc_inv(context_t *ctx, bp_db_t *tree,
  static inline void bt_insert(context_t *ctx, bp_db_t *tree, ctx_trace_op_t *op, uint64_t new_version,
                                     uint32_t *write_i) {
     bool success = true;
-    my_printf(yellow, "%p", op->value_to_write);
+    my_printf(yellow, "%p", *op->value_to_write);
     char* key = (char*)(op->value_to_write);
     char* value = (char*)(op->value_to_write);
     printf("Initiating insert.\n");
