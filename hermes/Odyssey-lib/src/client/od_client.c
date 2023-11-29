@@ -99,6 +99,8 @@ static inline void clt_stop_latency_mes(clt_trace_t* tr_info,
       (!tr_info->measuring_latency) ||
       (tr_info->lat_info->measured_req_flag == NO_REQ)) return;
 
+	      my_printf(yellow, "Client %u stopping latency mes for session %u (%u)\n",
+             tr_info->t_id, sess_id, tr_info->lat_info->measured_sess_id);
   if (tr_info->lat_info->measured_sess_id == sess_id) {
     report_latency(tr_info->lat_info);
 

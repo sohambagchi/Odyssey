@@ -25,7 +25,6 @@ if [ $SETUP == $INFORMATICS ]; then
   NET_DEVICE_NAME="mlx5_0"
   IS_ROCE=1
 else
-  echo "cloudlab"
   OD_HOME="/users/sohamb/odyssey"
 
   HOSTS=(
@@ -45,7 +44,6 @@ else
 	)
 
   localIP=$(ip addr | grep 'state UP' -A2 | grep 'inet 10.0.3'| awk '{print $2}' | cut -f1  -d'/')
-  echo $localIP
   NET_DEVICE_NAME="mlx4_0"
   IS_ROCE=0
 fi

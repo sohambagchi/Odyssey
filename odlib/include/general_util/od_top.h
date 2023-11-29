@@ -87,8 +87,8 @@ typedef struct key mica_key_t;
 
 
 #define WORKERS_PER_MACHINE 8
-#define SESSIONS_PER_THREAD 40
-#define WRITE_RATIO 500 //Warning write ratio is given out of a 1000, e.g 10 means 10/1000 i.e. 1%
+#define SESSIONS_PER_THREAD 20
+#define WRITE_RATIO 900 //Warning write ratio is given out of a 1000, e.g 10 means 10/1000 i.e. 1%
 #define RMW_RATIO 1000// this is out of 1000, e.g. 10 means 1%
 #define ENABLE_MULTICAST_ 0
 
@@ -106,7 +106,7 @@ typedef struct key mica_key_t;
 #define PUT_A_MACHINE_TO_SLEEP 1
 #define MACHINE_THAT_SLEEPS 1
 
-#define MEASURE_LATENCY 0
+#define MEASURE_LATENCY 1
 #define LATENCY_MACHINE 0
 #define LATENCY_THREAD 0
 #define MEASURE_READ_LATENCY 2 // 2 means mixed
@@ -115,10 +115,10 @@ typedef struct key mica_key_t;
 #define CREDIT_TIMEOUT  M_16 // B_4_EXACT //
 
 // PRINTS -- STATS
-#define EXIT_ON_PRINT 0
-#define PRINT_NUM 3
+#define EXIT_ON_PRINT 1
+#define PRINT_NUM 10000
 #define ENABLE_MS_MEASUREMENTS 0 // finer granularity measurements
-#define SHOW_AGGREGATE_STATS 0
+#define SHOW_AGGREGATE_STATS 1
 
 
 // QUORUM
@@ -193,7 +193,7 @@ typedef struct key mica_key_t;
 #define ENABLE_DEBUG_RMW_KV_PTR 0
 #define DEBUG_SEQLOCKS 0
 #define DEBUG_GID 0
-#define DEBUG_LATENCY 0
+#define DEBUG_LATENCY 1
 
 
 /* Request sizes */

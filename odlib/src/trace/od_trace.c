@@ -254,6 +254,14 @@ trace_t* trace_init(uint16_t t_id) {
   }
   else {
     trace = manufacture_trace(t_id);
+    
+    // for (uint64_t i = 0; i < TRACE_SIZE; i++) {
+      //my_printf(green, "opcode %u, key_id %u, key_hash ", trace[i].opcode, trace[i].key_id);
+      //for (uint64_t j = 0; j < 8; j++) {
+      //	my_printf(red, "%u ", trace[i].key_hash[j]);
+     // }
+     // my_printf(red, "\n");
+   // }
   }
   assert(trace != NULL);
   return trace;

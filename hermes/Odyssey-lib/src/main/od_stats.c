@@ -55,7 +55,7 @@ void print_latency_stats(void)
   FILE *latency_stats_fd;
   int i = 0;
   char filename[128];
-  char* path = "../results/latency";
+  char* path = "/users/sohamb/odyssey/results";
   const char * workload[] = {
     "WRITES", //
     "READS", //
@@ -66,10 +66,12 @@ void print_latency_stats(void)
           write_ratio / 10, "%",
           workload[MEASURE_READ_LATENCY]);
 
-  latency_stats_fd = fopen(filename, "w");
+  latency_stats_fd = fopen(filename, "w+");
 
   for (req_type_t req_t = RELEASE_REQ; req_t < LATENCY_TYPE_NUM; ++req_t) {
-    if (latency_count.req_meas_num[req_t] == 0) continue;
+	  my_printf(red, "Req type %s\n", latency_req_to_str(req_t));
+//    if (latency_count.req_meas_num[req_t] == 0) continue;
+    my_printf(green, "Req type %s\n", latency_req_to_str(req_t));
     fprintf(latency_stats_fd, "#---------------- %s --------------\n", latency_req_to_str(req_t));
     for(i = 0; i < LATENCY_BUCKETS; ++i) {
       fprintf(latency_stats_fd, "%s: %d, %d\n",
