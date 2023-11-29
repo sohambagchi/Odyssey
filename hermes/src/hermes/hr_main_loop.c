@@ -5,6 +5,7 @@
 #include "hr_inline_util.h"
 #include <stdio.h>
 #include <string.h>
+#include <time.h>
 
 #include "default_data_config.h"
 #include "splinterdb.h"
@@ -335,9 +336,17 @@ inline bool hr_commit_handler(context_t *ctx)
 _Noreturn inline void hr_main_loop(context_t *ctx, splinterdb* spl_handle)
 {
   if (ctx->t_id == 0) my_printf(yellow, "Hermes main loop \n");
+    struct timespec start, end;
+    char file_name[100];
+    sprintf(file_name, "/mnt/mydisk/stats/splinterdb/stats_%d.txt", ctx->t_id);
+    FILE *file = fopen(file_name, "w+");
+    if (file == NULL) {
+        fprintf(stderr, "Unable to open file for writing\n");
+        return;
+    }
+    clock_gettime(CLOCK_MONOTONIC, &start);
   while(true) {
     hr_batch_from_trace_to_KVS(ctx, spl_handle);
-    // todo: initiate check when other nodes fail.
     ctx_send_broadcasts(ctx, INV_QP_ID);
     ctx_poll_incoming_messages(ctx, INV_QP_ID);
     od_send_acks(ctx, ACK_QP_ID);
@@ -345,5 +354,9 @@ _Noreturn inline void hr_main_loop(context_t *ctx, splinterdb* spl_handle)
     ctx_send_broadcasts(ctx, COM_QP_ID);
     ctx_poll_incoming_messages(ctx, COM_QP_ID);
     hr_commit_writes(ctx);
+      clock_gettime(CLOCK_MONOTONIC, &end);
+      double elapsed_time = (end.tv_sec - start.tv_sec) + 1e-9 * (end.tv_nsec - start.tv_nsec);
+      fprintf(file, "%d : %e\n", ctx->t_id, elapsed_time);
   }
+  fclose(file);
 }
