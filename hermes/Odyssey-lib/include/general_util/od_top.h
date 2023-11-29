@@ -87,7 +87,7 @@ typedef struct key mica_key_t;
 
 
 #define WORKERS_PER_MACHINE 8
-#define SESSIONS_PER_THREAD 40
+#define SESSIONS_PER_THREAD 1
 #define WRITE_RATIO 500 //Warning write ratio is given out of a 1000, e.g 10 means 10/1000 i.e. 1%
 #define RMW_RATIO 1000// this is out of 1000, e.g. 10 means 1%
 #define ENABLE_MULTICAST_ 0
@@ -115,8 +115,8 @@ typedef struct key mica_key_t;
 #define CREDIT_TIMEOUT  M_16 // B_4_EXACT //
 
 // PRINTS -- STATS
-#define EXIT_ON_PRINT 0
-#define PRINT_NUM 3
+#define EXIT_ON_PRINT 1
+#define PRINT_NUM 10
 #define ENABLE_MS_MEASUREMENTS 0 // finer granularity measurements
 #define SHOW_AGGREGATE_STATS 0
 
