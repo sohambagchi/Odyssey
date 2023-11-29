@@ -116,7 +116,7 @@ typedef struct key mica_key_t;
 
 // PRINTS -- STATS
 #define EXIT_ON_PRINT 1
-#define PRINT_NUM 10000
+#define PRINT_NUM 10
 #define ENABLE_MS_MEASUREMENTS 0 // finer granularity measurements
 #define SHOW_AGGREGATE_STATS 1
 

@@ -324,11 +324,20 @@ inline bool hr_commit_handler(context_t *ctx)
 _Noreturn inline void hr_main_loop(context_t *ctx)
 {
   if (ctx->t_id == 0) my_printf(yellow, "Hermes main loop \n");
-  volatile struct timespec start, end;
+  struct timespec start, end;
+    char file_name[100];
+    sprintf(file_name, "/mnt/mydisk/stats/stats_%d.txt", ctx->t_id);
+    FILE *file = fopen(file_name, "w+");
+    if (file == NULL) {
+        fprintf(stderr, "Unable to open file %s for writing.\n", file_name);
+        return 1; // Return an error code
+   }
   while(true) {
       clock_gettime(CLOCK_MONOTONIC, &start);
     hr_batch_from_trace_to_KVS(ctx);
       clock_gettime(CLOCK_MONOTONIC, &end);
+double elapsed_time = (end.tv_sec - start.tv_sec) + 1e-9 * (end.tv_nsec - start.tv_nsec);
+	fprintf(file, "%d : %e\n", ctx->t_id, elapsed_time);
     ctx_send_broadcasts(ctx, INV_QP_ID);
     ctx_poll_incoming_messages(ctx, INV_QP_ID);
     od_send_acks(ctx, ACK_QP_ID);
@@ -337,15 +346,16 @@ _Noreturn inline void hr_main_loop(context_t *ctx)
     ctx_poll_incoming_messages(ctx, COM_QP_ID);
     hr_commit_writes(ctx);
   }
-    double elapsed_time = (end.tv_sec - start.tv_sec) + 1e-9 * (end.tv_nsec - start.tv_nsec);
-  my_printf(red, "Latency for thread %d is %d", elapsed_time);
-    char file_name[20];
-    sprintf(file_name, "stats_%d.txt", ctx->t_id);
-    FILE *file = fopen(file_name, "w");
-    if (file == NULL) {
-        fprintf(stderr, "Unable to open file for writing.\n");
-        return 1; // Return an error code
-    }
-    fprintf(file, "%d : %e", ctx->t_id, elapsed_time);
-    my_printf(magenta, "End of hr_main_loop\n");
+fclose(file);
+  ////  double elapsed_time = (end.tv_sec - start.tv_sec) + 1e-9 * (end.tv_nsec - start.tv_nsec);
+ // my_printf(red, "Latency for thread %d is %d", elapsed_time);
+  //  char file_name[20];
+  //  sprintf(file_name, "stats_%d.txt", ctx->t_id);
+  //  FILE *file = fopen(file_name, "w");
+  //  if (file == NULL) {
+  //      fprintf(stderr, "Unable to open file for writing.\n");
+    //    return 1; // Return an error code
+  //  }
+ //   fprintf(file, "%d : %e", ctx->t_id, elapsed_time);
+//    my_printf(magenta, "End of hr_main_loop\n");
 }
