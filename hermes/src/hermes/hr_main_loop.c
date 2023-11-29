@@ -5,6 +5,8 @@
 #include "hr_inline_util.h"
 // #include "btree2v.h"
 #include "bplus.h"
+#include <time.h>
+#include <stdio.h>
 
 static inline void fill_inv(hr_inv_t *inv,
                             ctx_trace_op_t *op,
@@ -328,6 +330,15 @@ inline bool hr_commit_handler(context_t *ctx)
 _Noreturn inline void hr_main_loop(context_t *ctx, bp_db_t tree)
 {
   if (ctx->t_id == 0) my_printf(yellow, "Hermes main loop \n");
+  struct timespec start, end;
+  char file_name[100];
+    sprintf(file_name, "/mnt/mydisk/stats/bplus/stats_%d.txt", ctx->t_id);
+    FILE *file = fopen(file_name, "w+");
+    if (file == NULL) {
+        fprintf(stderr, "Unable to open file for writing\n");
+        return;
+    }
+    clock_gettime(CLOCK_MONOTONIC, &start);
   while(true) {
     // printf("reached?");
     hr_batch_from_trace_to_KVS(ctx, tree);
@@ -339,5 +350,9 @@ _Noreturn inline void hr_main_loop(context_t *ctx, bp_db_t tree)
     ctx_send_broadcasts(ctx, COM_QP_ID);
     ctx_poll_incoming_messages(ctx, COM_QP_ID);
     hr_commit_writes(ctx);
+      clock_gettime(CLOCK_MONOTONIC, &end);
+      double elapsed_time = (end.tv_sec - start.tv_sec) + 1e-9 * (end.tv_nsec - start.tv_nsec);
+      fprintf(file, "%d : %e\n", ctx->t_id, elapsed_time);
   }
+    fclose(file);
 }
