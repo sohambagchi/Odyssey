@@ -33,7 +33,7 @@ void *worker(void *arg)
                               (uint16_t) params.id,
                               (uint16_t) QP_NUM,
                               local_ip);
- appl_init_qp_meta(ctx, tree);
+ appl_init_qp_meta(ctx, &tree);
 
  set_up_ctx(ctx);
 

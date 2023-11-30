@@ -310,7 +310,7 @@ inline void hr_KVS_batch_op_invs(context_t *ctx)
 
 // static inline void bt_init_w_rob_on_loc_inv(context_t *ctx, BtDb *bt,
 //                                          ctx_trace_op_t *op, uint64_t new_version, uint32_t write_i) {
-static inline void bt_init_w_rob_on_loc_inv(context_t *ctx, bp_db_t tree,
+static inline void bt_init_w_rob_on_loc_inv(context_t *ctx, bp_db_t* tree,
                                          ctx_trace_op_t *op, uint64_t new_version, uint32_t write_i) {
      hr_ctx_t *hr_ctx = (hr_ctx_t *) ctx->appl_ctx;
      hr_w_rob_t *w_rob = (hr_w_rob_t *)
@@ -334,7 +334,7 @@ static inline void bt_init_w_rob_on_loc_inv(context_t *ctx, bp_db_t tree,
  }
 
 //  static inline void bt_insert_buffered_ops(context_t *ctx, BtDb *bt, ctx_trace_op_t *op, bool inv) {
- static inline void bt_insert_buffered_ops(context_t *ctx, bp_db_t tree, ctx_trace_op_t *op, bool inv) {
+ static inline void bt_insert_buffered_ops(context_t *ctx, bp_db_t* tree, ctx_trace_op_t *op, bool inv) {
      hr_ctx_t *hr_ctx = (hr_ctx_t *) ctx->appl_ctx;
      buf_op_t *buf_op = (buf_op_t *) get_fifo_push_slot(hr_ctx->buf_ops);
      buf_op->op.opcode = op->opcode;

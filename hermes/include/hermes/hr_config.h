@@ -101,7 +101,7 @@ typedef struct buf_op {
   //uint16_t sess_id;
   //uint8_t opcode;
   // BtDb *bt;
-  bp_db_t tree;
+  bp_db_t* tree;
 } buf_op_t;
 
 typedef struct rep_ops {

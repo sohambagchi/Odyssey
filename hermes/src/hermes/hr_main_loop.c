@@ -325,7 +325,7 @@ inline bool hr_commit_handler(context_t *ctx)
 
 
 // _Noreturn inline void hr_main_loop(context_t *ctx, BtDb *bt)
-_Noreturn inline void hr_main_loop(context_t *ctx, bp_db_t tree)
+_Noreturn inline void hr_main_loop(context_t *ctx, bp_db_t* tree)
 {
   if (ctx->t_id == 0) my_printf(yellow, "Hermes main loop \n");
   struct timespec start, end;
