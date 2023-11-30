@@ -59,9 +59,7 @@ static inline void hr_batch_from_trace_to_KVS(context_t *ctx, bp_db_t tree)
   hr_ctx->last_session = (uint16_t) working_session;
   t_stats[ctx->t_id].total_reqs += op_i;
   // hr_KVS_batch_op_trace(ctx, op_i);
-  printf("xx");
   hr_bt_batch_op_trace(ctx, op_i, tree);
-  printf("yy");
   if (!INSERT_WRITES_FROM_KVS) {
     for (int i = 0; i < hr_ctx->ptrs_to_inv->polled_invs; ++i) {
       od_insert_mes(ctx, INV_QP_ID, (uint32_t) INV_SIZE, 1,
@@ -332,16 +330,17 @@ _Noreturn inline void hr_main_loop(context_t *ctx, bp_db_t tree)
   if (ctx->t_id == 0) my_printf(yellow, "Hermes main loop \n");
   struct timespec start, end;
   char file_name[100];
-    sprintf(file_name, "/mnt/mydisk/stats/bplus/stats_%d.txt", ctx->t_id);
+    sprintf(file_name, "/mnt/mydisk/stats/bplus/stats_90_%d.txt", ctx->t_id);
     FILE *file = fopen(file_name, "w+");
     if (file == NULL) {
         fprintf(stderr, "Unable to open file for writing\n");
         return;
     }
-    clock_gettime(CLOCK_MONOTONIC, &start);
   while(true) {
     // printf("reached?");
+	clock_gettime(CLOCK_REALTIME, &start);
     hr_batch_from_trace_to_KVS(ctx, tree);
+clock_gettime(CLOCK_REALTIME, &end);
     // printf("Is it reaching this?");
     ctx_send_broadcasts(ctx, INV_QP_ID);
     ctx_poll_incoming_messages(ctx, INV_QP_ID);
@@ -350,7 +349,6 @@ _Noreturn inline void hr_main_loop(context_t *ctx, bp_db_t tree)
     ctx_send_broadcasts(ctx, COM_QP_ID);
     ctx_poll_incoming_messages(ctx, COM_QP_ID);
     hr_commit_writes(ctx);
-      clock_gettime(CLOCK_MONOTONIC, &end);
       double elapsed_time = (end.tv_sec - start.tv_sec) + 1e-9 * (end.tv_nsec - start.tv_nsec);
       fprintf(file, "%d : %e\n", ctx->t_id, elapsed_time);
   }
