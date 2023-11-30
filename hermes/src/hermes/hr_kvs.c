@@ -351,14 +351,14 @@ static inline void bt_init_w_rob_on_loc_inv(context_t *ctx, bp_db_t tree,
      fifo_increm_capacity(hr_ctx->buf_ops);
  }
 
- static inline void bt_insert(context_t *ctx, bp_db_t tree, ctx_trace_op_t *op, uint64_t new_version,
+ static inline void bt_insert(context_t *ctx, bp_db_t *tree, ctx_trace_op_t *op, uint64_t new_version,
                                     uint32_t *write_i) {
     bool success = false;
     my_printf(yellow, "Values: %d\n", op->value_to_write);
     char* key = (char*)(op->value_to_write);
     char* value = (char*)(op->value_to_write);
     printf("Initiating insert with key and value.\n");
-    int return_value_from_insert = bp_sets(&tree, key, value);
+    int return_value_from_insert = bp_sets(tree, key, value);
     printf("Done with insert.\n");
     success = (return_value_from_insert == 0);
      if (success) {
@@ -378,7 +378,7 @@ static inline void bt_init_w_rob_on_loc_inv(context_t *ctx, bp_db_t tree,
  }
 
 //  static inline void bt_read(context_t *ctx, BtDb *bt, ctx_trace_op_t *op) {
- static inline void bt_read(context_t *ctx, bp_db_t tree, ctx_trace_op_t *op) {
+ static inline void bt_read(context_t *ctx, bp_db_t *tree, ctx_trace_op_t *op) {
      bool success = false;
      if (ENABLE_ASSERTIONS) {
          assert(op->value_to_read != NULL);
@@ -386,7 +386,7 @@ static inline void bt_init_w_rob_on_loc_inv(context_t *ctx, bp_db_t tree,
      }
     char* key = (char*)(op->value_to_read);
     bp_value_t bp_value;
-    int return_value_from_read = bp_gets(&tree, key, &bp_value);
+    int return_value_from_read = bp_gets(tree, key, &bp_value);
 
      //! handling scenarios where key does or does not exist
     //  success = val == op->value_to_read ? false : true;
@@ -404,7 +404,7 @@ static inline void bt_init_w_rob_on_loc_inv(context_t *ctx, bp_db_t tree,
 
 //  static inline void handle_trace_reqs_bt(context_t *ctx, BtDb *bt, ctx_trace_op_t *op,
 //                                           uint32_t *write_i, uint16_t op_i) {
- static inline void handle_trace_reqs_bt(context_t *ctx, bp_db_t tree, ctx_trace_op_t *op,
+ static inline void handle_trace_reqs_bt(context_t *ctx, bp_db_t *tree, ctx_trace_op_t *op,
                                           uint32_t *write_i, uint16_t op_i) {
      if (op->opcode == KVS_OP_GET) {
          bt_read(ctx, tree, op);
@@ -418,7 +418,7 @@ static inline void bt_init_w_rob_on_loc_inv(context_t *ctx, bp_db_t tree,
 
 //  static inline void bt_init_w_rob_on_rem_inv(context_t * ctx, BtDb *bt,
 //                                               hr_inv_mes_t *inv_mes, hr_inv_t *inv) {
- static inline void bt_init_w_rob_on_rem_inv(context_t * ctx, bp_db_t tree,
+ static inline void bt_init_w_rob_on_rem_inv(context_t * ctx, bp_db_t* tree,
                                               hr_inv_mes_t *inv_mes, hr_inv_t *inv) {
      hr_ctx_t *hr_ctx = (hr_ctx_t *) ctx->appl_ctx;
      hr_w_rob_t *w_rob = (hr_w_rob_t *)
@@ -446,12 +446,12 @@ static inline void bt_init_w_rob_on_loc_inv(context_t *ctx, bp_db_t tree,
  }
 
 //  static inline void bt_hr_rem_inv(context_t *ctx, BtDb *bt, hr_inv_mes_t* inv_mes, hr_inv_t *inv) {
- static inline void bt_hr_rem_inv(context_t *ctx, bp_db_t tree, hr_inv_mes_t* inv_mes, hr_inv_t *inv) {
+ static inline void bt_hr_rem_inv(context_t *ctx, bp_db_t* tree, hr_inv_mes_t* inv_mes, hr_inv_t *inv) {
      bt_init_w_rob_on_rem_inv(ctx, tree, inv_mes, inv);
  }
 
 //  inline void hr_bt_batch_op_trace(context_t *ctx, uint16_t op_num, BtDb *bt) {
- inline void hr_bt_batch_op_trace(context_t *ctx, uint16_t op_num, bp_db_t tree) {
+ inline void hr_bt_batch_op_trace(context_t *ctx, uint16_t op_num, bp_db_t* tree) {
      hr_ctx_t *hr_ctx = (hr_ctx_t*) ctx->appl_ctx;
      ctx_trace_op_t *op = hr_ctx->ops;
      uint16_t op_i;
@@ -479,7 +479,7 @@ static inline void bt_init_w_rob_on_loc_inv(context_t *ctx, bp_db_t tree,
  }
 
 //  inline void hr_bt_batch_op_invs(context_t *ctx, BtDb *bt) {
- inline void hr_bt_batch_op_invs(context_t *ctx, bp_db_t tree) {
+ inline void hr_bt_batch_op_invs(context_t *ctx, bp_db_t* tree) {
      hr_ctx_t *hr_ctx = (hr_ctx_t *) ctx->appl_ctx;
      ptrs_to_inv_t *ptrs_to_inv = hr_ctx->ptrs_to_inv;
      hr_inv_mes_t **inv_mes = hr_ctx->ptrs_to_inv->ptr_to_mes;

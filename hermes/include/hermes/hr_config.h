@@ -87,7 +87,7 @@ typedef struct w_rob {
   uint8_t val_len;
   bool inv_applied;
   // BtDb *bt;
-  bp_db_t tree;
+  bp_db_t* tree;
 
 
 

@@ -51,7 +51,7 @@ void *worker(void *arg)
       "%d sessions \n", t_id, SESSIONS_PER_THREAD);
 
   ///
-  main_loop(ctx, tree);
+  main_loop(ctx, &tree);
 
     bp_close(&tree);
 
