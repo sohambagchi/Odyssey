@@ -344,9 +344,10 @@ _Noreturn inline void hr_main_loop(context_t *ctx, splinterdb* spl_handle)
         fprintf(stderr, "Unable to open file for writing\n");
         return;
     }
-    clock_gettime(CLOCK_MONOTONIC, &start);
   while(true) {
+    clock_gettime(CLOCK_REALTIME, &start);
     hr_batch_from_trace_to_KVS(ctx, spl_handle);
+    clock_gettime(CLOCK_REALTIME, &end);
     ctx_send_broadcasts(ctx, INV_QP_ID);
     ctx_poll_incoming_messages(ctx, INV_QP_ID);
     od_send_acks(ctx, ACK_QP_ID);
@@ -354,7 +355,6 @@ _Noreturn inline void hr_main_loop(context_t *ctx, splinterdb* spl_handle)
     ctx_send_broadcasts(ctx, COM_QP_ID);
     ctx_poll_incoming_messages(ctx, COM_QP_ID);
     hr_commit_writes(ctx);
-      clock_gettime(CLOCK_MONOTONIC, &end);
       double elapsed_time = (end.tv_sec - start.tv_sec) + 1e-9 * (end.tv_nsec - start.tv_nsec);
       fprintf(file, "%d : %e\n", ctx->t_id, elapsed_time);
   }
