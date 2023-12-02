@@ -17,6 +17,7 @@ typedef struct opcode_info {
   uint32_t rmw_acquires;
   uint32_t cas; // number of compare and swaps
   uint32_t fa; // number of Fetch and adds
+  uint32_t range_queries;
 } opcode_info_t;
 
 //When manufacturing the trace
@@ -24,7 +25,7 @@ static uint8_t compute_opcode(struct opcode_info *opc_info, uint *seed)
 {
   uint8_t  opcode = 0;
   uint8_t cas_opcode = USE_WEAK_CAS ? COMPARE_AND_SWAP_WEAK : COMPARE_AND_SWAP_STRONG;
-  bool is_rmw = false, is_update = false, is_sc = false;
+  bool is_rmw = false, is_update = false, is_sc = false, is_range = false;
   if (ENABLE_RMWS) {
     if (ALL_RMWS_SINGLE_KEY) is_rmw = true;
     else
@@ -33,6 +34,7 @@ static uint8_t compute_opcode(struct opcode_info *opc_info, uint *seed)
   if (!is_rmw) {
     is_update = rand() % 1000 < write_ratio; //rand_r(seed) % 1000 < WRITE_RATIO;
     is_sc = rand() % 1000 < SC_RATIO; //rand_r(seed) % 1000 < SC_RATIO;
+    is_range = rand() % 1000 < RANGE_RATIO;
   }
 
   if (is_rmw) {
@@ -53,8 +55,10 @@ static uint8_t compute_opcode(struct opcode_info *opc_info, uint *seed)
       opcode = KVS_OP_PUT;
       opc_info->writes++;
     }
-  }
-  else  {
+  } else if (is_range) {
+    opcode = KVS_OP_RANGE;
+    opc_info->range_queries++;
+  } else  {
     if (is_sc && ENABLE_ACQUIRES) {
       opcode = OP_ACQUIRE;
       opc_info->sc_reads++;
