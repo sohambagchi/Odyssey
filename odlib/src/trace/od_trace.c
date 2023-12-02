@@ -9,6 +9,7 @@ typedef struct opcode_info {
   bool is_update;
   bool is_sc;
   bool is_rmw_acquire;
+  bool is_range;
   uint32_t writes;
   uint32_t reads;
   uint32_t sc_reads;
@@ -58,6 +59,7 @@ static uint8_t compute_opcode(struct opcode_info *opc_info, uint *seed)
   } else if (is_range) {
     opcode = KVS_OP_RANGE;
     opc_info->range_queries++;
+    opc_info->is_range = true;
   } else  {
     if (is_sc && ENABLE_ACQUIRES) {
       opcode = OP_ACQUIRE;
@@ -189,6 +191,7 @@ static trace_t* manufacture_trace(int t_id)
 
     //--- KEY ID----------
     uint32 key_id;
+    uint32 range_start, range_end;
     if(USE_A_SINGLE_KEY == 1) key_id =  0;
     uint128 key_hash;// = CityHash128((char *) &(key_id), 4);
     if (opc_info->is_rmw) {
@@ -206,8 +209,12 @@ static trace_t* manufacture_trace(int t_id)
 
       //printf("Wrkr %u key %u \n", t_id, key_id);
       key_hash = CityHash128((char *) &(key_id), 4);
-    }
-    else {
+    } else if (opc_info->is_range) {
+      //! we have a range query. Generate a start and end range value
+      //! using key_id as range start, key_hash as range end
+      key_id = (uint32) rand() % KVS_NUM_KEYS;
+      key_hash = CityHash128((char *) &(key_id), 4);
+    } else {
       key_id = (uint32) rand() % KVS_NUM_KEYS;
       key_hash = CityHash128((char *) &(key_id), 4);
     }
