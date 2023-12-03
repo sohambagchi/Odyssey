@@ -50,6 +50,7 @@ static inline void hr_batch_from_trace_to_KVS(context_t *ctx, splinterdb *spl_ha
   /// main loop
   while (op_i < HR_TRACE_BATCH && !passed_over_all_sessions) {
 
+    // TODO: check
     od_fill_trace_op(ctx, &trace[hr_ctx->trace_iter], &ops[op_i], working_session);
     hr_ctx->stalled[working_session] = true;
 
