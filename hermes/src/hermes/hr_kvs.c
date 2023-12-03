@@ -248,6 +248,54 @@ static inline void stbetree_insert(context_t *ctx, splinterdb* spl_handle, ctx_t
     }
 }
 
+//! Own API for range queries. SpliterDB provides a basic impl
+//! for range queries having no upper bound. This impl
+//! requires an upper bound.
+int splinterdb_range_query(splinterdb* spl_handle, uint8_t* range_start, uint8_t* range_end) {
+  //! Implementing our own range query API. Cool stuff!
+  //! Pointer to iterator
+  splinterdb_iterator *it = NULL;
+  int rc = splinterdb_iterator_init(spl_handle, &it, NULL_SLICE);
+  //! Create slices for our start and end keys.
+  char start[4], end[4];
+  void* end_ptr;
+  sprintf(start, "%hhn", range_start);
+  if (range_end == NULL) {
+    //! no upper bound. Iterate over all keys;
+    slice start_slice = slice_create((size_t)strlen(start), start);
+    //! not creating any slice for upper bound.
+    end_ptr == NULL;
+  } else {
+    sprintf(end, "%hhn", range_end);
+    slice start_slice = slice_create((size_t)strlen(start), start);
+    slice end_slice = slice_create((size_t)strlen(end), end);
+  }
+  end_ptr = &end;
+  uint32_t count = 0;
+  //! Use implementation of iterator from SplinterDB example.
+  //! Now we add upper bound as well.
+  for (; splinterdb_iterator_valid(it); splinterdb_iterator_next(it)) {
+    if (end_ptr != NULL) {
+      //! check if we reached our upper bound;
+      slice key, value;
+      splinterdb_iterator_get_current(it, &key, &value);
+      char* data = slice_data(value);
+      //! If we reached our upper bound, break.
+      if (strcmp(data, end) == 0) {
+        count++;
+        break;
+      } 
+    }
+    else count++;    
+  }
+  rc = splinterdb_iterator_status(it);
+  assert(rc == 0);
+  splinterdb_iterator_deinit(it);
+  return rc;
+}
+
+
+
 static inline void stbetree_read(context_t *ctx, splinterdb* spl_handle, ctx_trace_op_t *op) {
     bool success = false;
     if (ENABLE_ASSERTIONS) {
@@ -361,6 +409,9 @@ static inline void handle_trace_reqs_stb(context_t *ctx, splinterdb *spl_handle,
         stbetree_read(ctx, spl_handle, op);
     } else if (op->opcode == KVS_OP_PUT) {
         stbetree_insert(ctx, spl_handle, op, 0, write_i);
+    } else if (op->opcode == KVS_OP_RANGE) {
+        //! range queries go here.   
+        splinterdb_range_query(spl_handle, op->range_start, op_range_end);
     } else if (ENABLE_ASSERTIONS) {
         my_printf(red, "wrong Opcode in cache: %d, req %d \n", op->opcode, op_i);
         assert(0);
