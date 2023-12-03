@@ -225,7 +225,7 @@ static trace_t* manufacture_trace(int t_id)
   if (t_id == 0) {
     my_printf(cyan, "UNIFORM TRACE \n");
     printf("Writes: %.2f%%, SC Writes: %.2f%%, Reads: %.2f%% SC Reads: %.2f%% RMWs: %.2f%%, "
-             "CAS: %.2f%%, F&A: %.2f%%, RMW-Acquires: %.2f%%\n Trace w_size %u/%d, Write ratio %d \n",
+             "CAS: %.2f%%, F&A: %.2f%%, RMW-Acquires: %.2f%%\n Trace w_size %u/%d, Write ratio %d \nRange Query Percentage: %.2f%%\n",
            (double) (opc_info->writes * 100) / TRACE_SIZE,
            (double) (opc_info->sc_writes * 100) / TRACE_SIZE,
            (double) (opc_info->reads * 100) / TRACE_SIZE,
@@ -236,7 +236,7 @@ static trace_t* manufacture_trace(int t_id)
            (double) (opc_info->rmw_acquires * 100) / TRACE_SIZE,
            opc_info->writes + opc_info->sc_writes + opc_info->reads + opc_info->sc_reads + opc_info->rmws +
            opc_info->rmw_acquires,
-           TRACE_SIZE, write_ratio);
+           TRACE_SIZE, write_ratio, (double) (opc_info->range_queries * 100) / TRACE_SIZE);
   }
   trace[TRACE_SIZE].opcode = NOP;
   return trace;
