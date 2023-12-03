@@ -488,7 +488,7 @@ forceinline void  od_fill_trace_op(context_t *ctx,
 {
   create_inputs_of_op(&op->value_to_write, &op->value_to_read, &op->real_val_len,
                       &op->opcode, &op->index_to_req_array,
-                      &op->key, ctx->ctx_tmp->tmp_val, trace_op, working_session, ctx->t_id);
+                      &op->key, ctx->ctx_tmp->tmp_val, trace_op, working_session, ctx->t_id, &op->range_start, &op->range_end);
 
   od_check_op(op);
 
