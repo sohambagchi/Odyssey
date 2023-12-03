@@ -411,7 +411,7 @@ static inline void handle_trace_reqs_stb(context_t *ctx, splinterdb *spl_handle,
         stbetree_insert(ctx, spl_handle, op, 0, write_i);
     } else if (op->opcode == KVS_OP_RANGE) {
         //! range queries go here.   
-        splinterdb_range_query(spl_handle, op->range_start, op_range_end);
+        splinterdb_range_query(spl_handle, op->range_start, op->range_end);
     } else if (ENABLE_ASSERTIONS) {
         my_printf(red, "wrong Opcode in cache: %d, req %d \n", op->opcode, op_i);
         assert(0);
