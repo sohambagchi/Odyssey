@@ -260,17 +260,19 @@ int splinterdb_range_query(splinterdb* spl_handle, uint8_t* range_start, uint8_t
   char start[4], end[4];
   void* end_ptr;
   sprintf(start, "%hhn", range_start);
+  slice start_slice, end_slice;
   if (range_end == NULL) {
     //! no upper bound. Iterate over all keys;
-    slice start_slice = slice_create((size_t)strlen(start), start);
+    start_slice = slice_create((size_t)strlen(start), start);
     //! not creating any slice for upper bound.
     end_ptr == NULL;
   } else {
     sprintf(end, "%hhn", range_end);
-    slice start_slice = slice_create((size_t)strlen(start), start);
-    slice end_slice = slice_create((size_t)strlen(end), end);
+    start_slice = slice_create((size_t)strlen(start), start);
+    end_slice = slice_create((size_t)strlen(end), end);
   }
   end_ptr = &end;
+  int rc = splinterdb_iterator_init(spl_handle, &it, &start_slice);
   uint32_t count = 0;
   //! Use implementation of iterator from SplinterDB example.
   //! Now we add upper bound as well.
