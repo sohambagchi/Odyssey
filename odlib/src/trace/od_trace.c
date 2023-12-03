@@ -65,10 +65,10 @@ static uint8_t compute_opcode(struct opcode_info *opc_info, uint *seed)
       opcode = OP_ACQUIRE;
       opc_info->sc_reads++;
     }
-  //  else {
-  //    opcode = KVS_OP_GET;
-  //    opc_info->reads++;
-  //  }
+    else {
+      opcode = KVS_OP_GET;
+      opc_info->reads++;
+    }
   }
   opc_info->is_rmw = is_rmw;
   opc_info->is_update = is_update;
