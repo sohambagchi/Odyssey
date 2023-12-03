@@ -377,6 +377,36 @@ static inline void bt_init_w_rob_on_loc_inv(context_t *ctx, bp_db_t* tree,
      }
  }
 
+// Adding range query support for b+tree here
+
+
+static inline void bt_range_query(context_t *ctx, bp_db_t *tree, ctx_trace_op_t *op) {
+     bool success = false;
+     if (ENABLE_ASSERTIONS) {
+         assert(op->value_to_read != NULL);
+         assert(&tree != NULL);
+     }
+    char* start = (char*)(op->value_to_read);
+    char* end = (char*)(op->value_to_read + 16);
+    bp_range_cb cb_value;
+    int return_values_from_range_query = bp_get_ranges(tree, start, end, cb_value);
+
+     //! handling scenarios where key does or does not exist
+    //  success = val == op->value_to_read ? false : true;
+    success = (return_values_from_range_query == 0);
+     //! if we succeed
+     if (success) {
+         hr_ctx_t *hr_ctx = (hr_ctx_t*) ctx->appl_ctx;
+         signal_completion_to_client(op->session_id, op->index_to_req_array, ctx->t_id);
+         hr_ctx->all_sessions_stalled = false;
+         hr_ctx->stalled[op->session_id] = false;
+     } else {
+         bt_insert_buffered_ops(ctx, tree, op, false);
+     }
+ }
+
+
+
 //  static inline void bt_read(context_t *ctx, BtDb *bt, ctx_trace_op_t *op) {
  static inline void bt_read(context_t *ctx, bp_db_t *tree, ctx_trace_op_t *op) {
      bool success = false;
@@ -410,6 +440,9 @@ static inline void bt_init_w_rob_on_loc_inv(context_t *ctx, bp_db_t* tree,
          bt_read(ctx, tree, op);
      } else if (op->opcode == KVS_OP_PUT) {
          bt_insert(ctx, tree, op, 0, write_i);
+     } else if (op->opcode == KVS_OP_RANGE) {
+        //call range query function here 
+        bt_range_query(ctx, tree, op);
      } else if (ENABLE_ASSERTIONS) {
          my_printf(red, "Wrong Opcode in cache: %d, req %d \n", op->opcode, op_i);
          assert(0);
