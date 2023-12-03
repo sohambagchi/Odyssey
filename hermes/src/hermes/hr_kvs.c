@@ -272,7 +272,7 @@ int splinterdb_range_query(splinterdb* spl_handle, uint8_t* range_start, uint8_t
     end_slice = slice_create((size_t)strlen(end), end);
   }
   end_ptr = &end;
-  int rc = splinterdb_iterator_init(spl_handle, &it, &start_slice);
+  int rc = splinterdb_iterator_init(spl_handle, &it, start_slice);
   uint32_t count = 0;
   //! Use implementation of iterator from SplinterDB example.
   //! Now we add upper bound as well.
