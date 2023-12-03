@@ -337,11 +337,9 @@ _Noreturn inline void hr_main_loop(context_t *ctx, bp_db_t* tree)
         return;
     }
   while(true) {
-    // printf("reached?");
-	clock_gettime(CLOCK_REALTIME, &start);
+	  clock_gettime(CLOCK_REALTIME, &start);
     hr_batch_from_trace_to_KVS(ctx, tree);
-clock_gettime(CLOCK_REALTIME, &end);
-    // printf("Is it reaching this?");
+    clock_gettime(CLOCK_REALTIME, &end);
     ctx_send_broadcasts(ctx, INV_QP_ID);
     ctx_poll_incoming_messages(ctx, INV_QP_ID);
     od_send_acks(ctx, ACK_QP_ID);
