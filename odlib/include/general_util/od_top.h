@@ -88,8 +88,8 @@ typedef struct key mica_key_t;
 
 #define WORKERS_PER_MACHINE 8
 #define SESSIONS_PER_THREAD 1
-#define WRITE_RATIO 900 //Warning write ratio is given out of a 1000, e.g 10 means 10/1000 i.e. 1%
-#define RANGE_RATIO 50
+#define WRITE_RATIO 500 //Warning write ratio is given out of a 1000, e.g 10 means 10/1000 i.e. 1%
+#define RANGE_RATIO 500
 #define RMW_RATIO 1000// this is out of 1000, e.g. 10 means 1%
 #define ENABLE_MULTICAST_ 0
 
@@ -132,7 +132,7 @@ typedef struct key mica_key_t;
 //-------------------------------------------
 
 
-#define SC_RATIO 500// this is out of 1000, e.g. 10 means 1%
+#define SC_RATIO 0// this is out of 1000, e.g. 10 means 1%
 #define ENABLE_RELEASES (1 && COMPILED_SYSTEM == kite_sys)
 #define ENABLE_ACQUIRES (1 && COMPILED_SYSTEM == kite_sys)
 
