@@ -255,7 +255,6 @@ int splinterdb_range_query(splinterdb* spl_handle, uint8_t* range_start, uint8_t
   //! Implementing our own range query API. Cool stuff!
   //! Pointer to iterator
   splinterdb_iterator *it = NULL;
-  int rc = splinterdb_iterator_init(spl_handle, &it, NULL_SLICE);
   //! Create slices for our start and end keys.
   char start[4], end[4];
   void* end_ptr;
