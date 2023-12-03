@@ -533,7 +533,6 @@ int
 splinterdb_insert(const splinterdb *kvsb, slice user_key, slice value)
 {
    message msg = message_create(MESSAGE_TYPE_INSERT, value);
-   platform_error_log("\nInserting.")
    return splinterdb_insert_message(kvsb, user_key, msg);
 }
 
