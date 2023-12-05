@@ -12,12 +12,16 @@
 #include "../../../odlib/include/trace/od_trace_util.h"
 #include "od_init_func.h"
 #include "splinterdb.h"
+# include "bplus.h"
 
 void hr_stats(stats_ctx_t *ctx);
 
 
 void hr_init_functionality(int argc, char *argv[]);
 void hr_init_qp_meta(context_t *ctx, splinterdb* spl_handle);
+// TODO: fix
+// void hr_init_qp_meta(context_t *ctx, BtDb *bt);
+void hr_init_qp_meta(context_t *ctx, bp_db_t *tree);
 void* set_up_hr_ctx(context_t *ctx);
 
 

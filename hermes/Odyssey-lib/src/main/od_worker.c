@@ -15,9 +15,22 @@
 #define USER_MAX_KEY_SIZE ((int)100)
 #define DB_FILE_SIZE_MB 1024 // Size of SplinterDB device; Fixed when created
 #define CACHE_SIZE_MB   64
+#include "bplus.h"
 
 void *worker(void *arg)
 {
+    bp_db_t tree;
+    int ret = bp_open(&tree, "bplus.bp");
+  // BtDb *bt = new BtDb();
+  // BtDb *bt = (BtDb*)malloc(sizeof(BtDb));
+  // bp_db_t *tree = new bp_db_t();
+
+    if (ret != 0) {
+        printf("Unable to create bplustree instance\n");
+        return;
+    }
+  printf("Successfully created Btree instance\n");
+
   struct thread_params params = *(struct thread_params *) arg;
   uint16_t t_id = (uint16_t) params.id;
 
@@ -44,7 +57,8 @@ void *worker(void *arg)
                               local_ip);
   // todo: create an instance of splinterdb here
     appl_init_qp_meta(ctx, spl_handle);
-
+ appl_init_qp_meta(ctx, tree);
+  // TODO: fix
  set_up_ctx(ctx);
 
   /// Connect with other machines and exchange qp information
@@ -64,7 +78,10 @@ void *worker(void *arg)
 
   ///
   main_loop(ctx, spl_handle);
+  printf("prnit");
+  // TODO: fix
+  main_loop(ctx, &tree);
 
-
+    bp_close(&tree);
   return NULL;
 };

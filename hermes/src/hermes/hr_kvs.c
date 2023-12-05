@@ -5,7 +5,7 @@
 #include "hr_kvs_util.h"
 #include <stdio.h>
 #include <string.h>
-
+#include "bplus.h"
 #include "default_data_config.h"
 #include "splinterdb.h"
 
@@ -538,3 +538,227 @@ inline void hr_sdb_batch_op_invs(context_t *ctx, splinterdb* spl_handle) {
         sdb_hr_rem_inv(ctx, spl_handle, inv_mes[op_i], invs[op_i]);
     }
 }
+}
+
+// Binding the Btree commands to the KVS
+
+// static inline void bt_init_w_rob_on_loc_inv(context_t *ctx, BtDb *bt,
+//                                          ctx_trace_op_t *op, uint64_t new_version, uint32_t write_i) {
+static inline void bt_init_w_rob_on_loc_inv(context_t *ctx, bp_db_t* tree,
+                                         ctx_trace_op_t *op, uint64_t new_version, uint32_t write_i) {
+     hr_ctx_t *hr_ctx = (hr_ctx_t *) ctx->appl_ctx;
+     hr_w_rob_t *w_rob = (hr_w_rob_t *)
+             get_fifo_push_relative_slot(hr_ctx->loc_w_rob, write_i);
+     if (ENABLE_ASSERTIONS) {
+         assert(w_rob->w_state == INVALID);
+         w_rob->l_id = hr_ctx->inserted_w_id[ctx->m_id];
+     }
+     w_rob->version = new_version;
+     w_rob->tree = tree;
+     w_rob->val_len = op->val_len;
+     w_rob->sess_id = op->session_id;
+     w_rob->w_state = SEMIVALID;
+     if (ENABLE_ASSERTIONS)
+         assert(hr_ctx->stalled[w_rob->sess_id]);
+     if (DEBUG_INVS)
+         my_printf(cyan, "W_rob insert sess %u write %lu, w_rob_i %u\n",
+                   w_rob->sess_id, w_rob->l_id,
+                   hr_ctx->loc_w_rob->push_ptr);
+     fifo_increm_capacity(hr_ctx->loc_w_rob);
+ }
+
+//  static inline void bt_insert_buffered_ops(context_t *ctx, BtDb *bt, ctx_trace_op_t *op, bool inv) {
+ static inline void bt_insert_buffered_ops(context_t *ctx, bp_db_t* tree, ctx_trace_op_t *op, bool inv) {
+     hr_ctx_t *hr_ctx = (hr_ctx_t *) ctx->appl_ctx;
+     buf_op_t *buf_op = (buf_op_t *) get_fifo_push_slot(hr_ctx->buf_ops);
+     buf_op->op.opcode = op->opcode;
+     buf_op->op.key = op->key;
+     buf_op->op.session_id = op->session_id;
+     buf_op->op.index_to_req_array = op->index_to_req_array;
+     buf_op->tree = tree;
+     if (inv) {
+         buf_op->op.value_to_write = op->value_to_write;
+     } else {
+         buf_op->op.value_to_read = op->value_to_read;
+     }
+     fifo_incr_push_ptr(hr_ctx->buf_ops);
+     fifo_increm_capacity(hr_ctx->buf_ops);
+ }
+
+ static inline void bt_insert(context_t *ctx, bp_db_t *tree, ctx_trace_op_t *op, uint64_t new_version,
+                                    uint32_t *write_i) {
+    bool success = false;
+    my_printf(yellow, "Values: %d\n", op->value_to_write);
+    char* key = (char*)(op->value_to_write);
+    char* value = (char*)(op->value_to_write);
+    printf("Initiating insert with key and value.\n");
+    int return_value_from_insert = bp_sets(tree, key, value);
+    printf("Done with insert.\n");
+    success = (return_value_from_insert == 0);
+     if (success) {
+         //! something is happening here
+         printf("Success.\n");
+         bt_init_w_rob_on_loc_inv(ctx, tree, op, 0, *write_i);
+         if (INSERT_WRITES_FROM_KVS)
+             od_insert_mes(ctx, INV_QP_ID, (uint32_t) INV_SIZE, 1, false, op, 0, 0);
+         else {
+             hr_ctx_t *hr_ctx = (hr_ctx_t *) ctx->appl_ctx;
+             hr_ctx->ptrs_to_inv->ptr_to_ops[*write_i] = (hr_inv_t *) op;
+             (*write_i)++;
+         }
+     } else {
+         bt_insert_buffered_ops(ctx, tree, op, true);
+     }
+ }
+
+// Adding range query support for b+tree here
+
+
+static inline void bt_range_query(context_t *ctx, bp_db_t *tree, ctx_trace_op_t *op) {
+     bool success = false;
+     if (ENABLE_ASSERTIONS) {
+         assert(op->value_to_read != NULL);
+         assert(&tree != NULL);
+     }
+    char* start = (char*)(op->value_to_read);
+    char* end = (char*)(op->value_to_read + 16);
+    bp_range_cb cb_value;
+    int return_values_from_range_query = bp_get_ranges(tree, start, end, cb_value);
+
+     //! handling scenarios where key does or does not exist
+    //  success = val == op->value_to_read ? false : true;
+    success = (return_values_from_range_query == 0);
+     //! if we succeed
+     if (success) {
+         hr_ctx_t *hr_ctx = (hr_ctx_t*) ctx->appl_ctx;
+         signal_completion_to_client(op->session_id, op->index_to_req_array, ctx->t_id);
+         hr_ctx->all_sessions_stalled = false;
+         hr_ctx->stalled[op->session_id] = false;
+     } else {
+         bt_insert_buffered_ops(ctx, tree, op, false);
+     }
+ }
+
+
+
+//  static inline void bt_read(context_t *ctx, BtDb *bt, ctx_trace_op_t *op) {
+ static inline void bt_read(context_t *ctx, bp_db_t *tree, ctx_trace_op_t *op) {
+     bool success = false;
+     if (ENABLE_ASSERTIONS) {
+         assert(op->value_to_read != NULL);
+         assert(&tree != NULL);
+     }
+    char* key = (char*)(op->value_to_read);
+    bp_value_t bp_value;
+    int return_value_from_read = bp_gets(tree, key, &bp_value);
+
+     //! handling scenarios where key does or does not exist
+    //  success = val == op->value_to_read ? false : true;
+    success = (return_value_from_read == 0);
+     //! if we succeed
+     if (success) {
+         hr_ctx_t *hr_ctx = (hr_ctx_t*) ctx->appl_ctx;
+         signal_completion_to_client(op->session_id, op->index_to_req_array, ctx->t_id);
+         hr_ctx->all_sessions_stalled = false;
+         hr_ctx->stalled[op->session_id] = false;
+     } else {
+         bt_insert_buffered_ops(ctx, tree, op, false);
+     }
+ }
+
+//  static inline void handle_trace_reqs_bt(context_t *ctx, BtDb *bt, ctx_trace_op_t *op,
+//                                           uint32_t *write_i, uint16_t op_i) {
+ static inline void handle_trace_reqs_bt(context_t *ctx, bp_db_t *tree, ctx_trace_op_t *op,
+                                          uint32_t *write_i, uint16_t op_i) {
+     if (op->opcode == KVS_OP_GET) {
+         bt_read(ctx, tree, op);
+     } else if (op->opcode == KVS_OP_PUT) {
+         bt_insert(ctx, tree, op, 0, write_i);
+     } else if (op->opcode == KVS_OP_RANGE) {
+        //call range query function here 
+        bt_range_query(ctx, tree, op);
+     } else if (ENABLE_ASSERTIONS) {
+         my_printf(red, "Wrong Opcode in cache: %d, req %d \n", op->opcode, op_i);
+         assert(0);
+     }
+ }
+
+//  static inline void bt_init_w_rob_on_rem_inv(context_t * ctx, BtDb *bt,
+//                                               hr_inv_mes_t *inv_mes, hr_inv_t *inv) {
+ static inline void bt_init_w_rob_on_rem_inv(context_t * ctx, bp_db_t* tree,
+                                              hr_inv_mes_t *inv_mes, hr_inv_t *inv) {
+     hr_ctx_t *hr_ctx = (hr_ctx_t *) ctx->appl_ctx;
+     hr_w_rob_t *w_rob = (hr_w_rob_t *)
+             get_fifo_push_slot(&hr_ctx->w_rob[inv_mes->m_id]);
+     if (DEBUG_INVS)
+         my_printf(cyan, "W_rob %u for inv from %u with l_id %lu -->%lu, inserted w_id = %u\n",
+                   w_rob->id,  inv_mes->m_id, inv_mes->l_id,
+                   inv_mes->l_id + inv_mes->coalesce_num,
+                   hr_ctx->inserted_w_id[inv_mes->m_id]);
+     if (ENABLE_ASSERTIONS) {
+         assert(w_rob->w_state == INVALID);
+         w_rob->l_id = hr_ctx->inserted_w_id[inv_mes->m_id];
+     }
+     w_rob->w_state = VALID;
+     w_rob->inv_applied = true;
+     hr_ctx->inserted_w_id[inv_mes->m_id]++;
+     // w_rob capacity is already incremented when polling
+     // to achieve back pressure at polling
+     
+      w_rob->version = inv->version;
+      w_rob->m_id = inv_mes->m_id;
+      w_rob->tree = tree;
+
+     fifo_incr_push_ptr(&hr_ctx->w_rob[inv_mes->m_id]);
+ }
+
+//  static inline void bt_hr_rem_inv(context_t *ctx, BtDb *bt, hr_inv_mes_t* inv_mes, hr_inv_t *inv) {
+ static inline void bt_hr_rem_inv(context_t *ctx, bp_db_t* tree, hr_inv_mes_t* inv_mes, hr_inv_t *inv) {
+     bt_init_w_rob_on_rem_inv(ctx, tree, inv_mes, inv);
+ }
+
+//  inline void hr_bt_batch_op_trace(context_t *ctx, uint16_t op_num, BtDb *bt) {
+ inline void hr_bt_batch_op_trace(context_t *ctx, uint16_t op_num, bp_db_t* tree) {
+     hr_ctx_t *hr_ctx = (hr_ctx_t*) ctx->appl_ctx;
+     ctx_trace_op_t *op = hr_ctx->ops;
+     uint16_t op_i;
+     uint32_t write_i = 0;
+     uint32_t buf_ops_num = hr_ctx->buf_ops->capacity;
+     if (ENABLE_ASSERTIONS) {
+         assert(op != NULL);
+         assert(op_num > 0 && op_num <= HR_TRACE_BATCH);
+     }
+     for (op_i = 0; op_i < buf_ops_num; ++op_i) {
+         buf_op_t *buf_op = (buf_op_t *) get_fifo_pull_slot(hr_ctx->buf_ops);
+         check_state_with_allowed_flags(3, buf_op->op.opcode, KVS_OP_PUT, KVS_OP_GET);
+         my_printf(cyan, "Sending requests\n");
+         handle_trace_reqs_bt(ctx, tree, &buf_op->op, &write_i, op_i);
+         my_printf(cyan, "Done\n");
+         // handle_trace_reqs(ctx, buf_op->kv_ptr, &buf_op->op, &write_i, op_i);
+         fifo_incr_pull_ptr(hr_ctx->buf_ops);
+         fifo_decrem_capacity(hr_ctx->buf_ops);
+     }
+     for (op_i = 0; op_i < op_num; op_i++) {
+         handle_trace_reqs_bt(ctx, tree, &op[op_i], &write_i, op_i);
+     }
+     if (!INSERT_WRITES_FROM_KVS)
+         hr_ctx->ptrs_to_inv->polled_invs = (uint16_t) write_i;
+ }
+
+//  inline void hr_bt_batch_op_invs(context_t *ctx, BtDb *bt) {
+ inline void hr_bt_batch_op_invs(context_t *ctx, bp_db_t* tree) {
+     hr_ctx_t *hr_ctx = (hr_ctx_t *) ctx->appl_ctx;
+     ptrs_to_inv_t *ptrs_to_inv = hr_ctx->ptrs_to_inv;
+     hr_inv_mes_t **inv_mes = hr_ctx->ptrs_to_inv->ptr_to_mes;
+     hr_inv_t **invs = ptrs_to_inv->ptr_to_ops;
+     uint16_t op_num = ptrs_to_inv->polled_invs;
+     uint16_t op_i;
+     if (ENABLE_ASSERTIONS) {
+         assert(invs != NULL);
+         assert(op_num > 0 && op_num <= MAX_INCOMING_INV);
+     }
+     for (op_i = 0; op_i < op_num; op_i++) {
+         bt_hr_rem_inv(ctx, tree, inv_mes[op_i], invs[op_i]);
+     }
+ }
+>>>>>>> e53b2ce5768b90d189d132788da2c38981889786

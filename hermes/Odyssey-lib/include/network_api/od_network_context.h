@@ -13,6 +13,8 @@
 #include "od_generic_inline_util.h"
 #include "od_templates.h"
 #include "splinterdb.h"
+// #include "btree2v.h"
+#include "bplus.h"
 typedef struct context context_t;
 
 typedef void (*insert_helper_t) (context_t *, void*, void *, uint32_t);
@@ -20,6 +22,9 @@ typedef bool (*recv_handler_t)(context_t *);
 typedef void (*send_helper_t)(context_t *);
 typedef void (*send_debug_t)(context_t *, void*, uint32_t);
 typedef void (*recv_kvs_t)(context_t *, splinterdb *);
+// typedef void (*recv_kvs_t)(context_t *, BtDb *bt);
+// TODO: fix
+typedef void (*recv_kvs_t)(context_t *, bp_db_t* tree);
 typedef void (*polling_debug_t)(context_t *, uint16_t, int);
 
 

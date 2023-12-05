@@ -51,6 +51,8 @@ typedef struct ctx_trace_op {
   uint8_t *range_start;
   uint8_t *range_end;
   uint32_t index_to_req_array;
+  uint8_t *range_start;
+  uint8_t *range_end;
   uint32_t real_val_len; // this is the value length the client is interested in
   uint16_t session_id;
   uint8_t opcode;

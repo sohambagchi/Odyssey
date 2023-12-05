@@ -11,7 +11,7 @@
 #include "hr_kvs_util.h"
 #include "hr_debug_util.h"
 #include "splinterdb.h"
-//#include "hr_reserve_stations.h"
+#include "bplus.h"
 
 
 
@@ -40,5 +40,8 @@ bool hr_commit_handler(context_t *ctx);
 ////---------------------------------------------------------------------------*/
 
 _Noreturn void hr_main_loop(context_t *ctx, splinterdb *spl_handle);
+// _Noreturn void hr_main_loop(context_t *ctx, BtDb *bt);
+// TODO: fix
+_Noreturn void hr_main_loop(context_t *ctx, bp_db_t* tree);
 
 #endif //ODYSSEY_HR_INLINE_UTIL_H

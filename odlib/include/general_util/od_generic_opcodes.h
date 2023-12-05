@@ -50,8 +50,6 @@ enum {COMPARE_AND_SWAP_STRONG = 96,
 #define KVS_OP_GET 111
 #define KVS_OP_PUT 112
 #define KVS_OP_RANGE 113
-
-//KVS Response
 typedef enum {
   EMPTY = 120,
   KVS_GET_TS_SUCCESS = 21,

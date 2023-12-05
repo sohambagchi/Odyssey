@@ -27,24 +27,25 @@ if [ $SETUP == $INFORMATICS ]; then
 else
   echo "cloudlab"
   OD_HOME="/mnt/mydisk/Odyssey"
+#  OD_HOME="/users/sohamb/ankith/Odyssey"
 
   HOSTS=(
-    10.0.3.1
-    10.0.3.2
-    10.0.3.3
-    10.0.3.4
-    10.0.3.5
+    10.0.4.1
+    10.0.4.2
+    10.0.4.3
+    10.0.4.4
+    10.0.4.5
   )
 
   allIPs=(
-	10.0.3.1
-	10.0.3.2
-	10.0.3.3
-	10.0.3.4
-	10.0.3.5
+	10.0.4.1
+	10.0.4.2
+	10.0.4.3
+	10.0.4.4
+	10.0.4.5
 	)
 
-  localIP=$(ip addr | grep 'state UP' -A2 | grep 'inet 10.0.3'| awk '{print $2}' | cut -f1  -d'/')
+  localIP=$(ip addr | grep 'state UP' -A2 | grep 'inet 10.0.4'| awk '{print $2}' | cut -f1  -d'/')
   echo $localIP
   NET_DEVICE_NAME="mlx4_0"
   IS_ROCE=0
