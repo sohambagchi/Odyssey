@@ -95,7 +95,7 @@ typedef struct key mica_key_t;
 #define ENABLE_ASSERTIONS 0
 #define DISABLE_LOCKING 0
 
-#define ENABLE_CLIENTS 0
+#define ENABLE_CLIENTS 1
 #define CLIENTS_PER_MACHINE_ 1
 #define PER_SESSION_REQ_NUM 5
 #define CLIENTS_PER_MACHINE (ENABLE_CLIENTS ? CLIENTS_PER_MACHINE_ : 0)
@@ -103,10 +103,10 @@ typedef struct key mica_key_t;
 
 
 
-#define PUT_A_MACHINE_TO_SLEEP 1
+#define PUT_A_MACHINE_TO_SLEEP 0
 #define MACHINE_THAT_SLEEPS 1
 
-#define MEASURE_LATENCY 0
+#define MEASURE_LATENCY 1
 #define LATENCY_MACHINE 0
 #define LATENCY_THREAD 0
 #define MEASURE_READ_LATENCY 2 // 2 means mixed
@@ -115,10 +115,10 @@ typedef struct key mica_key_t;
 #define CREDIT_TIMEOUT  M_16 // B_4_EXACT //
 
 // PRINTS -- STATS
-#define EXIT_ON_PRINT 0
-#define PRINT_NUM 3
-#define ENABLE_MS_MEASUREMENTS 0 // finer granularity measurements
-#define SHOW_AGGREGATE_STATS 0
+#define EXIT_ON_PRINT 1
+#define PRINT_NUM 10
+#define ENABLE_MS_MEASUREMENTS 1 // finer granularity measurements
+#define SHOW_AGGREGATE_STATS 1
 
 
 // QUORUM
