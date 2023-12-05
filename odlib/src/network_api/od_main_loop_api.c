@@ -439,7 +439,7 @@ forceinline void create_inputs_of_op(uint8_t **value_to_write, uint8_t **value_t
                                      uint32_t *real_val_len, uint8_t *opcode,
                                      uint32_t *index_to_req_array,
                                      mica_key_t *key, uint8_t *op_value, trace_t *trace,
-                                     int working_session, uint16_t t_id, uint8_t *range_start, uint8_t *range_end)
+                                     int working_session, uint16_t t_id, uint8_t **range_start, uint8_t **range_end)
 {
   client_op_t *if_cl_op = NULL;
   if (ENABLE_CLIENTS) {
@@ -487,7 +487,7 @@ forceinline void  od_fill_trace_op(context_t *ctx,
 {
   create_inputs_of_op(&op->value_to_write, &op->value_to_read, &op->real_val_len,
                       &op->opcode, &op->index_to_req_array,
-                      &op->key, ctx->ctx_tmp->tmp_val, trace_op, working_session, ctx->t_id);
+                      &op->key, ctx->ctx_tmp->tmp_val, trace_op, working_session, ctx->t_id, &op->range_start, &op->range_end);
 
   od_check_op(op);
 
