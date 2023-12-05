@@ -56,7 +56,7 @@ void print_latency_stats(void)
   FILE *latency_stats_fd;
   int i = 0;
   char filename[128];
-  char* path = "../results/latency";
+  char* path = "/users/sohamb/odyssey/build/results/latency";
   const char * workload[] = {
     "WRITES", //
     "READS", //
