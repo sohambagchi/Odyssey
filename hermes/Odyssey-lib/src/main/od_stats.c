@@ -8,6 +8,7 @@
 
 void print_latency_stats(void);
 void *print_stats(void* no_arg)
+// todo: stats
 {
 
   stats_ctx_t *ctx = calloc(1, sizeof(stats_ctx_t));

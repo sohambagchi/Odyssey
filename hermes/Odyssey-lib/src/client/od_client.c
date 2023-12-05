@@ -40,8 +40,7 @@ static inline clt_trace_t*  init_clt_trace(uint16_t t_id)
   tr_info->max_wrkr = (uint16_t) (tr_info->max_sess / SESSIONS_PER_THREAD);
   tr_info->worker_num = 1 + tr_info->max_wrkr - tr_info->min_wrkr;
 
-  tr_info->measuring_latency = tr_info->m_id == LATENCY_MACHINE &&
-                               tr_info->t_id == LATENCY_THREAD;
+  tr_info->measuring_latency = true
   if (tr_info->measuring_latency) {
     tr_info->lat_info = calloc(1, sizeof(latency_info_t));
     tr_info->lat_info->measured_req_flag = NO_REQ;
@@ -92,6 +91,7 @@ static inline void clt_start_latency_mes(clt_trace_t* tr_info,
 
 }
 
+//! todo: soham
 static inline void clt_stop_latency_mes(clt_trace_t* tr_info,
                                         uint32_t sess_id)
 {
@@ -100,6 +100,7 @@ static inline void clt_stop_latency_mes(clt_trace_t* tr_info,
       (tr_info->lat_info->measured_req_flag == NO_REQ)) return;
 
   if (tr_info->lat_info->measured_sess_id == sess_id) {
+      printf("Report latency\n");
     report_latency(tr_info->lat_info);
 
     tr_info->lat_info->measured_sess_id++;

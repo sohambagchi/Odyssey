@@ -87,8 +87,9 @@ typedef struct key mica_key_t;
 
 
 #define WORKERS_PER_MACHINE 8
-#define SESSIONS_PER_THREAD 40
-#define WRITE_RATIO 500 //Warning write ratio is given out of a 1000, e.g 10 means 10/1000 i.e. 1%
+#define SESSIONS_PER_THREAD 1
+#define WRITE_RATIO 100 //Warning write ratio is given out of a 1000, e.g 10 means 10/1000 i.e. 1%
+#define RANGE_RATIO 900
 #define RMW_RATIO 1000// this is out of 1000, e.g. 10 means 1%
 #define ENABLE_MULTICAST_ 0
 
@@ -108,7 +109,7 @@ typedef struct key mica_key_t;
 
 #define MEASURE_LATENCY 1
 #define LATENCY_MACHINE 0
-#define LATENCY_THREAD 0
+#define LATENCY_THREAD 1
 #define MEASURE_READ_LATENCY 2 // 2 means mixed
 #define ENABLE_STAT_COUNTING 1
 
@@ -117,8 +118,8 @@ typedef struct key mica_key_t;
 // PRINTS -- STATS
 #define EXIT_ON_PRINT 1
 #define PRINT_NUM 10
-#define ENABLE_MS_MEASUREMENTS 1 // finer granularity measurements
-#define SHOW_AGGREGATE_STATS 1
+#define ENABLE_MS_MEASUREMENTS 0 // finer granularity measurements
+#define SHOW_AGGREGATE_STATS 0
 
 
 // QUORUM
@@ -130,7 +131,7 @@ typedef struct key mica_key_t;
 //-------------------------------------------
 
 
-#define SC_RATIO 500// this is out of 1000, e.g. 10 means 1%
+#define SC_RATIO 0// this is out of 1000, e.g. 10 means 1%
 #define ENABLE_RELEASES (1 && COMPILED_SYSTEM == kite_sys)
 #define ENABLE_ACQUIRES (1 && COMPILED_SYSTEM == kite_sys)
 

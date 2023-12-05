@@ -69,6 +69,7 @@ inline void ctx_send_broadcasts(context_t *ctx, uint16_t qp_id)
   per_qp_meta_t *recv_qp_meta = &ctx->qp_meta[qp_meta->recv_qp_id];
   uint16_t br_i = 0, mes_sent = 0, available_credits = 0;
   fifo_t *send_fifo = qp_meta->send_fifo;
+  printf("Is this printing?\n");
   if (send_fifo->net_capacity == 0) return;
   else if (!check_bcast_credits(qp_meta->credits, ctx->q_info,
                                 &qp_meta->time_out_cnt,

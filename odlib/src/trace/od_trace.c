@@ -9,6 +9,7 @@ typedef struct opcode_info {
   bool is_update;
   bool is_sc;
   bool is_rmw_acquire;
+  bool is_range;
   uint32_t writes;
   uint32_t reads;
   uint32_t sc_reads;
@@ -17,6 +18,7 @@ typedef struct opcode_info {
   uint32_t rmw_acquires;
   uint32_t cas; // number of compare and swaps
   uint32_t fa; // number of Fetch and adds
+  uint32_t range_queries;
 } opcode_info_t;
 
 //When manufacturing the trace
@@ -24,7 +26,7 @@ static uint8_t compute_opcode(struct opcode_info *opc_info, uint *seed)
 {
   uint8_t  opcode = 0;
   uint8_t cas_opcode = USE_WEAK_CAS ? COMPARE_AND_SWAP_WEAK : COMPARE_AND_SWAP_STRONG;
-  bool is_rmw = false, is_update = false, is_sc = false;
+  bool is_rmw = false, is_update = false, is_sc = false, is_range = false;
   if (ENABLE_RMWS) {
     if (ALL_RMWS_SINGLE_KEY) is_rmw = true;
     else
@@ -33,6 +35,7 @@ static uint8_t compute_opcode(struct opcode_info *opc_info, uint *seed)
   if (!is_rmw) {
     is_update = rand() % 1000 < write_ratio; //rand_r(seed) % 1000 < WRITE_RATIO;
     is_sc = rand() % 1000 < SC_RATIO; //rand_r(seed) % 1000 < SC_RATIO;
+    is_range = rand() % 1000 < RANGE_RATIO;
   }
 
   if (is_rmw) {
@@ -53,8 +56,11 @@ static uint8_t compute_opcode(struct opcode_info *opc_info, uint *seed)
       opcode = KVS_OP_PUT;
       opc_info->writes++;
     }
-  }
-  else  {
+  } else if (is_range) {
+    opcode = KVS_OP_RANGE;
+    opc_info->range_queries++;
+    opc_info->is_range = true;
+  } else  {
     if (is_sc && ENABLE_ACQUIRES) {
       opcode = OP_ACQUIRE;
       opc_info->sc_reads++;
@@ -185,6 +191,7 @@ static trace_t* manufacture_trace(int t_id)
 
     //--- KEY ID----------
     uint32 key_id;
+    uint32 range_start, range_end;
     if(USE_A_SINGLE_KEY == 1) key_id =  0;
     uint128 key_hash;// = CityHash128((char *) &(key_id), 4);
     if (opc_info->is_rmw) {
@@ -202,8 +209,12 @@ static trace_t* manufacture_trace(int t_id)
 
       //printf("Wrkr %u key %u \n", t_id, key_id);
       key_hash = CityHash128((char *) &(key_id), 4);
-    }
-    else {
+    } else if (opc_info->is_range) {
+      //! we have a range query. Generate a start and end range value
+      //! using key_id as range start, key_hash as range end
+      key_id = (uint32) rand() % KVS_NUM_KEYS;
+      key_hash = CityHash128((char *) &(key_id), 4);
+    } else {
       key_id = (uint32) rand() % KVS_NUM_KEYS;
       key_hash = CityHash128((char *) &(key_id), 4);
     }
@@ -214,7 +225,7 @@ static trace_t* manufacture_trace(int t_id)
   if (t_id == 0) {
     my_printf(cyan, "UNIFORM TRACE \n");
     printf("Writes: %.2f%%, SC Writes: %.2f%%, Reads: %.2f%% SC Reads: %.2f%% RMWs: %.2f%%, "
-             "CAS: %.2f%%, F&A: %.2f%%, RMW-Acquires: %.2f%%\n Trace w_size %u/%d, Write ratio %d \n",
+             "CAS: %.2f%%, F&A: %.2f%%, RMW-Acquires: %.2f%%\n Trace w_size %u/%d, Write ratio %d \nRange Query Percentage: %.2f%%\n",
            (double) (opc_info->writes * 100) / TRACE_SIZE,
            (double) (opc_info->sc_writes * 100) / TRACE_SIZE,
            (double) (opc_info->reads * 100) / TRACE_SIZE,
@@ -225,7 +236,7 @@ static trace_t* manufacture_trace(int t_id)
            (double) (opc_info->rmw_acquires * 100) / TRACE_SIZE,
            opc_info->writes + opc_info->sc_writes + opc_info->reads + opc_info->sc_reads + opc_info->rmws +
            opc_info->rmw_acquires,
-           TRACE_SIZE, write_ratio);
+           TRACE_SIZE, write_ratio, (double) (opc_info->range_queries * 100) / TRACE_SIZE);
   }
   trace[TRACE_SIZE].opcode = NOP;
   return trace;
