@@ -397,7 +397,7 @@ typedef struct quorum_info {
 } quorum_info_t;
 
 
-typdef struct kvs_wrapper {
+typedef struct kvs_wrapper {
 #if USE_BPLUS
   bp_db_t tree;
 #endif         
