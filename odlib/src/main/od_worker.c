@@ -26,7 +26,7 @@ void *worker(void *arg)
       return;
   }
   printf("Successfully created Btree instance\n");
-  kvs->tree = tree;
+  kvs->tree = &tree;
 #endif /* ifdef  USE_BPLUS */
 
 #if USE_SPLINTERDB

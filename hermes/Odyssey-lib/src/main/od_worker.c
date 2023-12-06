@@ -30,7 +30,7 @@ void *worker(void *arg)
         return;
     }
   printf("Successfully created Btree instance\n");
-  kvs->tree=tree;
+  kvs->tree=&tree;
 #endif 
 
   struct thread_params params = *(struct thread_params *) arg;

@@ -404,7 +404,7 @@ typedef struct quorum_info {
 
 typedef struct kvs_wrapper {
 #if USE_BPLUS
-  bp_db_t tree;
+  bp_db_t* tree;
 #endif         
 #if USE_SPLINTERDB
   splinterdb* spl_handle;
