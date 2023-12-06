@@ -471,7 +471,7 @@ forceinline void create_inputs_of_op(uint8_t **value_to_write, uint8_t **value_t
 static inline void od_check_op(ctx_trace_op_t *op)
 {
   if (ENABLE_ASSERTIONS) {
-    check_state_with_allowed_flags(3, op->opcode, KVS_OP_PUT, KVS_OP_GET, KVS_OP_RANGE);
+    check_state_with_allowed_flags(4, op->opcode, KVS_OP_PUT, KVS_OP_GET, KVS_OP_RANGE);
     assert(op->real_val_len > 0);
     assert(op->index_to_req_array < PER_SESSION_REQ_NUM);
     assert(op->session_id < SESSIONS_PER_THREAD);
