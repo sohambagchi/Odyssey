@@ -99,10 +99,10 @@ typedef struct key mica_key_t;
 #define RMW_RATIO 1000// this is out of 1000, e.g. 10 means 1%
 #define ENABLE_MULTICAST_ 0
 
-#define ENABLE_ASSERTIONS 0
+#define ENABLE_ASSERTIONS 1
 #define DISABLE_LOCKING 0
 
-#define ENABLE_CLIENTS 1
+#define ENABLE_CLIENTS 0
 #define CLIENTS_PER_MACHINE_ 1
 #define PER_SESSION_REQ_NUM 5
 #define CLIENTS_PER_MACHINE (ENABLE_CLIENTS ? CLIENTS_PER_MACHINE_ : 0)
