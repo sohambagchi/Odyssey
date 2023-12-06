@@ -84,8 +84,9 @@ typedef struct key mica_key_t;
 // CORE CONFIGURATION
 #define MACHINE_NUM 5
 
-
-
+#define USE_MICA 0
+#define USE_BPLUS 0
+#define USE_SPLINTERDB 0
 #define WORKERS_PER_MACHINE 8
 #define SESSIONS_PER_THREAD 1
 #define WRITE_RATIO 100 //Warning write ratio is given out of a 1000, e.g 10 means 10/1000 i.e. 1%
@@ -394,6 +395,16 @@ typedef struct quorum_info {
   uint16_t *targets;
 
 } quorum_info_t;
+
+
+typdef struct kvs_wrapper {
+#if USE_BPLUS
+  bp_db_t tree;
+#endif         
+#if USE_SPLINTERDB
+  splinterdb* spl_handle;
+#endif
+} kvs_t;/* if USE_SPLINTERDB */
 
 //////////////////////////////////////////////////////
 /////////////~~~~CLIENT STRUCTS~~~~~~/////////////////////////

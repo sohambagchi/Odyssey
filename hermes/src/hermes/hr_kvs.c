@@ -423,32 +423,26 @@ static inline void handle_trace_reqs_stb(context_t *ctx, splinterdb *spl_handle,
 ////------------------------------ KVS_API -----------------------------
 ////---------------------------------------------------------------------------*/
 
-inline void hr_KVS_batch_op_trace(context_t *ctx, uint16_t op_num)
+inline void hr_KVS_batch_op_trace(context_t *ctx, uint16_t op_num, kvs_t* kvs)
 {
     hr_ctx_t *hr_ctx = (hr_ctx_t *) ctx->appl_ctx;
     ctx_trace_op_t *op = hr_ctx->ops;
     uint16_t op_i;
+    uint32_t buf_ops_num = hr_ctx->buf_ops->capacity;
+    uint32_t write_i = 0;
     if (ENABLE_ASSERTIONS) {
         assert(op != NULL);
         assert(op_num > 0 && op_num <= HR_TRACE_BATCH);
     }
-
+#if USE_MICA
     unsigned int bkt[HR_TRACE_BATCH];
     struct mica_bkt *bkt_ptr[HR_TRACE_BATCH];
     unsigned int tag[HR_TRACE_BATCH];
     mica_op_t *kv_ptr[HR_TRACE_BATCH];	/* Ptr to KV item in log */
-
-
     for(op_i = 0; op_i < op_num; op_i++) {
         KVS_locate_one_bucket(op_i, bkt, &op[op_i].key, bkt_ptr, tag, kv_ptr, KVS);
     }
     KVS_locate_all_kv_pairs(op_num, tag, bkt_ptr, kv_ptr, KVS);
-
-    uint32_t buf_ops_num = hr_ctx->buf_ops->capacity;
-    uint32_t write_i = 0;
-
-    //sw_prefetch_buf_op_keys(ctx);
-
     for (op_i = 0; op_i < buf_ops_num; ++op_i) {
         buf_op_t *buf_op = (buf_op_t *) get_fifo_pull_slot(hr_ctx->buf_ops);
         check_state_with_allowed_flags(3, buf_op->op.opcode, KVS_OP_PUT, KVS_OP_GET);
@@ -457,14 +451,40 @@ inline void hr_KVS_batch_op_trace(context_t *ctx, uint16_t op_num)
         fifo_incr_pull_ptr(hr_ctx->buf_ops);
         fifo_decrem_capacity(hr_ctx->buf_ops);
     }
-
     for(op_i = 0; op_i < op_num; op_i++) {
         //! this is just checking for the keys
         od_KVS_check_key(kv_ptr[op_i], op[op_i].key, op_i);
         handle_trace_reqs(ctx, kv_ptr[op_i], &op[op_i], &write_i, op_i);
     }
-    if (!INSERT_WRITES_FROM_KVS)
-        hr_ctx->ptrs_to_inv->polled_invs = (uint16_t) write_i;
+#endif /* if USE_MICA */
+#if USE_BPLUS
+     for (op_i = 0; op_i < buf_ops_num; ++op_i) {
+         buf_op_t *buf_op = (buf_op_t *) get_fifo_pull_slot(hr_ctx->buf_ops);
+         check_state_with_allowed_flags(3, buf_op->op.opcode, KVS_OP_PUT, KVS_OP_GET, KVS_OP_RANGE);
+         handle_trace_reqs_bt(ctx, kvs->tree, &buf_op->op, &write_i, op_i);
+         fifo_incr_pull_ptr(hr_ctx->buf_ops);
+         fifo_decrem_capacity(hr_ctx->buf_ops);
+     }
+     for (op_i = 0; op_i < op_num; op_i++) {
+         handle_trace_reqs_bt(ctx, kvs->tree, &op[op_i], &write_i, op_i);
+     }
+#endif /* if USE_BPLUS */
+#if USE_SPLINTERDB
+  for (op_i = 0; op_i < buf_ops_num; ++op_i) {
+    buf_op_t *buf_op = (buf_op_t *) get_fifo_pull_slot(hr_ctx->buf_ops);
+    check_state_with_allowed_flags(3, buf_op->op.opcode, KVS_OP_PUT, KVS_OP_GET, KVS_OP_RANGE);
+    handle_trace_reqs_stb(ctx, kvs->spl_handle, &buf_op->op, &write_i, op_i);
+    // handle_trace_reqs(ctx, buf_op->kv_ptr, &buf_op->op, &write_i, op_i);
+    fifo_incr_pull_ptr(hr_ctx->buf_ops);
+    fifo_decrem_capacity(hr_ctx->buf_ops);
+  }
+  for (op_i = 0; op_i < op_num; op_i++) {
+    handle_trace_reqs_stb(ctx, kvs->spl_handle, &op[op_i], &write_i, op_i);
+  }
+#endif /* if USE_SPLINTERDB */
+  if (!INSERT_WRITES_FROM_KVS)
+    hr_ctx->ptrs_to_inv->polled_invs = (uint16_t) write_i;
+
 }
 
 inline void hr_sdb_batch_op_trace(context_t *ctx, uint16_t op_num, splinterdb* spl_handle) {
@@ -493,25 +513,23 @@ inline void hr_sdb_batch_op_trace(context_t *ctx, uint16_t op_num, splinterdb* s
 }
 
 
-inline void hr_KVS_batch_op_invs(context_t *ctx)
+inline void hr_KVS_batch_op_invs(context_t *ctx, kvs_t* kvs)
 {
-    hr_ctx_t *hr_ctx = (hr_ctx_t *) ctx->appl_ctx;
+      hr_ctx_t *hr_ctx = (hr_ctx_t *) ctx->appl_ctx;
     ptrs_to_inv_t *ptrs_to_inv = hr_ctx->ptrs_to_inv;
     hr_inv_mes_t **inv_mes = hr_ctx->ptrs_to_inv->ptr_to_mes;
     hr_inv_t **invs = ptrs_to_inv->ptr_to_ops;
     uint16_t op_num = ptrs_to_inv->polled_invs;
-
     uint16_t op_i;
     if (ENABLE_ASSERTIONS) {
         assert(invs != NULL);
         assert(op_num > 0 && op_num <= MAX_INCOMING_INV);
     }
-
+#if USE_MICA
     unsigned int bkt[MAX_INCOMING_INV];
     struct mica_bkt *bkt_ptr[MAX_INCOMING_INV];
     unsigned int tag[MAX_INCOMING_INV];
     mica_op_t *kv_ptr[MAX_INCOMING_INV];	/* Ptr to KV item in log */
-
     for(op_i = 0; op_i < op_num; op_i++) {
         KVS_locate_one_bucket(op_i, bkt, &invs[op_i]->key, bkt_ptr, tag, kv_ptr, KVS);
     }
@@ -521,6 +539,17 @@ inline void hr_KVS_batch_op_invs(context_t *ctx)
         od_KVS_check_key(kv_ptr[op_i], invs[op_i]->key, op_i);
         hr_rem_inv(ctx, kv_ptr[op_i], inv_mes[op_i], invs[op_i]);
     }
+#endif /* if USE_MICA */
+#if USE_BPLUS
+     for (op_i = 0; op_i < op_num; op_i++) {
+         bt_hr_rem_inv(ctx, kvs->tree, inv_mes[op_i], invs[op_i]);
+     }
+#endif /* if USE_BPLUS */
+#if USE_SPLINTERDB
+  for (op_i = 0; op_i < op_num; op_i++) {
+    sdb_hr_rem_inv(ctx, kvs->spl_handle, inv_mes[op_i], invs[op_i]);
+  }
+  #endif /* if USE_SPLINTERDB */
 }
 
 inline void hr_sdb_batch_op_invs(context_t *ctx, splinterdb* spl_handle) {
@@ -537,7 +566,6 @@ inline void hr_sdb_batch_op_invs(context_t *ctx, splinterdb* spl_handle) {
     for (op_i = 0; op_i < op_num; op_i++) {
         sdb_hr_rem_inv(ctx, spl_handle, inv_mes[op_i], invs[op_i]);
     }
-}
 }
 
 // Binding the Btree commands to the KVS
@@ -731,10 +759,7 @@ static inline void bt_range_query(context_t *ctx, bp_db_t *tree, ctx_trace_op_t 
      for (op_i = 0; op_i < buf_ops_num; ++op_i) {
          buf_op_t *buf_op = (buf_op_t *) get_fifo_pull_slot(hr_ctx->buf_ops);
          check_state_with_allowed_flags(3, buf_op->op.opcode, KVS_OP_PUT, KVS_OP_GET);
-         my_printf(cyan, "Sending requests\n");
          handle_trace_reqs_bt(ctx, tree, &buf_op->op, &write_i, op_i);
-         my_printf(cyan, "Done\n");
-         // handle_trace_reqs(ctx, buf_op->kv_ptr, &buf_op->op, &write_i, op_i);
          fifo_incr_pull_ptr(hr_ctx->buf_ops);
          fifo_decrem_capacity(hr_ctx->buf_ops);
      }
@@ -761,4 +786,3 @@ static inline void bt_range_query(context_t *ctx, bp_db_t *tree, ctx_trace_op_t 
          bt_hr_rem_inv(ctx, tree, inv_mes[op_i], invs[op_i]);
      }
  }
->>>>>>> e53b2ce5768b90d189d132788da2c38981889786

@@ -13,9 +13,9 @@
 #include "bplus.h"
 
 
-void hr_KVS_batch_op_trace(context_t *ctx, uint16_t op_num);
+void hr_KVS_batch_op_trace(context_t *ctx, uint16_t op_num, kvs_t* kvs);
 
-void hr_KVS_batch_op_invs(context_t *ctx);
+void hr_KVS_batch_op_invs(context_t *ctx, kvs_t* kvs);
 
 void hr_sdb_batch_op_invs(context_t *ctx, splinterdb *spl_handle);
 // TODO: fix

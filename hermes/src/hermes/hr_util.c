@@ -56,25 +56,22 @@ void hr_init_send_fifos(context_t *ctx)
 
 }
 
-<<<<<<< HEAD
-void hr_qp_meta_mfs(context_t *ctx, splinterdb* spl_handle)
-=======
-// void hr_qp_meta_mfs(context_t *ctx, BtDb *bt)
-void hr_qp_meta_mfs(context_t *ctx, bp_db_t* tree)
->>>>>>> e53b2ce5768b90d189d132788da2c38981889786
+void hr_qp_meta_mfs(context_t *ctx, kvs_t* kvs)
 {
   mf_t *mfs = calloc(QP_NUM, sizeof(mf_t));
 
   mfs[INV_QP_ID].recv_handler = inv_handler;
   mfs[INV_QP_ID].send_helper = send_invs_helper;
   mfs[INV_QP_ID].insert_helper = insert_inv_help;
-<<<<<<< HEAD
-  mfs[INV_QP_ID].recv_kvs = hr_sdb_batch_op_invs;
-=======
+#if USE_SPLINTERDB
+  mfs[INV_QP_ID].recv_kvs = hr_sdb_batch_op_invs; 
+#endif
+#if USE_BPLUS
   mfs[INV_QP_ID].recv_kvs = hr_bt_batch_op_invs;
->>>>>>> e53b2ce5768b90d189d132788da2c38981889786
-  //mfs[PREP_QP_ID].polling_debug = hr_debug_info_bookkeep;
-
+#endif
+#if USE_MICA
+  mfs[INV_QP_ID].recv_kvs = hr_KVS_batch_op_invs; 
+#endif /* if USE_MICA */
   mfs[ACK_QP_ID].recv_handler = ack_handler;
   mfs[ACK_QP_ID].send_helper = send_acks_helper;
 
@@ -94,12 +91,7 @@ void hr_qp_meta_mfs(context_t *ctx, bp_db_t* tree)
   free(mfs);
 }
 
-<<<<<<< HEAD
-void hr_init_qp_meta(context_t *ctx, splinterdb* spl_handle)
-=======
-// void hr_init_qp_meta(context_t *ctx, BtDb *bt)
-void hr_init_qp_meta(context_t *ctx, bp_db_t *tree)
->>>>>>> e53b2ce5768b90d189d132788da2c38981889786
+void hr_init_qp_meta(context_t *ctx, kvs_t* kvs)
 {
   per_qp_meta_t *qp_meta = ctx->qp_meta;
   create_per_qp_meta(&qp_meta[INV_QP_ID], MAX_INV_WRS,
@@ -125,11 +117,7 @@ void hr_init_qp_meta(context_t *ctx, bp_db_t *tree)
                      "send commits", "recv commits");
 
 
-<<<<<<< HEAD
-  hr_qp_meta_mfs(ctx, spl_handle);
-=======
-  hr_qp_meta_mfs(ctx, tree);
->>>>>>> e53b2ce5768b90d189d132788da2c38981889786
+  hr_qp_meta_mfs(r_qp_meta_mfs(ctx, spl_handle);
   hr_init_send_fifos(ctx);
 }
 

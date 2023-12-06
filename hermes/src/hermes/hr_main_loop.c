@@ -37,12 +37,7 @@ static inline void fill_inv(hr_inv_t *inv,
 
 
 
-<<<<<<< HEAD
 static inline void hr_batch_from_trace_to_KVS(context_t *ctx, splinterdb *spl_handle)
-=======
-// static inline void hr_batch_from_trace_to_KVS(context_t *ctx, BtDb *bt)
-static inline void hr_batch_from_trace_to_KVS(context_t *ctx, bp_db_t* tree)
->>>>>>> e53b2ce5768b90d189d132788da2c38981889786
 {
   hr_ctx_t *hr_ctx = (hr_ctx_t *) ctx->appl_ctx;
   ctx_trace_op_t *ops = hr_ctx->ops;
@@ -79,13 +74,7 @@ static inline void hr_batch_from_trace_to_KVS(context_t *ctx, bp_db_t* tree)
   }
   hr_ctx->last_session = (uint16_t) working_session;
   t_stats[ctx->t_id].total_reqs += op_i;
-<<<<<<< HEAD
-  //hr_KVS_batch_op_trace(ctx, op_i);
     hr_sdb_batch_op_trace(ctx, op_i,  spl_handle);
-=======
-  // hr_KVS_batch_op_trace(ctx, op_i);
-  hr_bt_batch_op_trace(ctx, op_i, tree);
->>>>>>> e53b2ce5768b90d189d132788da2c38981889786
   if (!INSERT_WRITES_FROM_KVS) {
     for (int i = 0; i < hr_ctx->ptrs_to_inv->polled_invs; ++i) {
       od_insert_mes(ctx, INV_QP_ID, (uint32_t) INV_SIZE, 1,
@@ -355,35 +344,34 @@ inline bool hr_commit_handler(context_t *ctx)
 }
 
 
-<<<<<<< HEAD
-_Noreturn inline void hr_main_loop(context_t *ctx, splinterdb* spl_handle)
+_Noreturn inline void hr_main_loop(context_t *ctx, kvs_t *kvs)
 {
+  // TODO: based on if def, change parameter to functions.
+  assert (USE_BPLUS == 1 || USE_SPLINTERDB == 1 || USE_MICA == 1);
   if (ctx->t_id == 0) my_printf(yellow, "Hermes main loop \n");
-    struct timespec start, end;
-    char file_name[100];
-    sprintf(file_name, "/mnt/mydisk/stats/splinterdb/stats_%d.txt", ctx->t_id);
-=======
-// _Noreturn inline void hr_main_loop(context_t *ctx, BtDb *bt)
-_Noreturn inline void hr_main_loop(context_t *ctx, bp_db_t* tree)
-{
-  if (ctx->t_id == 0) my_printf(yellow, "Hermes main loop \n");
+  char * file_path;
+#if USE_BPLUS
+  file_path= "/mnt/mydisk/stats/bplus/stats_90_%d.txt"; 
+#endif /* if USE_BPLUS */
+#if USE_SPLINTERDB
+  file_path = "/mnt/mydisk/stats/splinterdb/stats_90_%d.txt";
+#endif /* if USE_SPLINTERDB */
+#if USE_MICA
+  file_path = "/mnt/mydisk/stats/mica/stats_90_%d.txt";     
+#endif /* if 0 */
   struct timespec start, end;
   char file_name[100];
-    sprintf(file_name, "/mnt/mydisk/stats/bplus/stats_90_%d.txt", ctx->t_id);
->>>>>>> e53b2ce5768b90d189d132788da2c38981889786
+    sprintf(file_name, file_path, ctx->t_id);
     FILE *file = fopen(file_name, "w+");
     if (file == NULL) {
         fprintf(stderr, "Unable to open file for writing\n");
         return;
     }
   while(true) {
-<<<<<<< HEAD
     clock_gettime(CLOCK_REALTIME, &start);
     hr_batch_from_trace_to_KVS(ctx, spl_handle);
-=======
 	  clock_gettime(CLOCK_REALTIME, &start);
     hr_batch_from_trace_to_KVS(ctx, tree);
->>>>>>> e53b2ce5768b90d189d132788da2c38981889786
     clock_gettime(CLOCK_REALTIME, &end);
     ctx_send_broadcasts(ctx, INV_QP_ID);
     ctx_poll_incoming_messages(ctx, INV_QP_ID);
@@ -395,9 +383,4 @@ _Noreturn inline void hr_main_loop(context_t *ctx, bp_db_t* tree)
       double elapsed_time = (end.tv_sec - start.tv_sec) + 1e-9 * (end.tv_nsec - start.tv_nsec);
       fprintf(file, "%d : %e\n", ctx->t_id, elapsed_time);
   }
-<<<<<<< HEAD
-  fclose(file);
-=======
-    fclose(file);
->>>>>>> e53b2ce5768b90d189d132788da2c38981889786
 }
