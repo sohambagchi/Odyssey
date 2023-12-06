@@ -37,7 +37,7 @@ static inline void fill_inv(hr_inv_t *inv,
 
 
 
-static inline void hr_batch_from_trace_to_KVS(context_t *ctx, splinterdb *spl_handle)
+static inline void hr_batch_from_trace_to_KVS(context_t *ctx, kvs_t* kvs)
 {
   hr_ctx_t *hr_ctx = (hr_ctx_t *) ctx->appl_ctx;
   ctx_trace_op_t *ops = hr_ctx->ops;
@@ -74,7 +74,7 @@ static inline void hr_batch_from_trace_to_KVS(context_t *ctx, splinterdb *spl_ha
   }
   hr_ctx->last_session = (uint16_t) working_session;
   t_stats[ctx->t_id].total_reqs += op_i;
-    hr_sdb_batch_op_trace(ctx, op_i,  spl_handle);
+    hr_KVS_batch_op_trace(ctx, op_i,  kvs);
   if (!INSERT_WRITES_FROM_KVS) {
     for (int i = 0; i < hr_ctx->ptrs_to_inv->polled_invs; ++i) {
       od_insert_mes(ctx, INV_QP_ID, (uint32_t) INV_SIZE, 1,
@@ -369,9 +369,8 @@ _Noreturn inline void hr_main_loop(context_t *ctx, kvs_t *kvs)
     }
   while(true) {
     clock_gettime(CLOCK_REALTIME, &start);
-    hr_batch_from_trace_to_KVS(ctx, spl_handle);
+    hr_batch_from_trace_to_KVS(ctx, kvs);
 	  clock_gettime(CLOCK_REALTIME, &start);
-    hr_batch_from_trace_to_KVS(ctx, tree);
     clock_gettime(CLOCK_REALTIME, &end);
     ctx_send_broadcasts(ctx, INV_QP_ID);
     ctx_poll_incoming_messages(ctx, INV_QP_ID);
