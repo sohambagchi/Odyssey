@@ -84,7 +84,7 @@ typedef struct key mica_key_t;
 // CORE CONFIGURATION
 #define MACHINE_NUM 5
 
-#define USE_MICA 0
+#define USE_MICA 1 
 #define USE_BPLUS 0
 #define USE_SPLINTERDB 0
 #define WORKERS_PER_MACHINE 8
