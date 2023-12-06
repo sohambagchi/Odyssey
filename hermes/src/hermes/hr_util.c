@@ -106,7 +106,7 @@ void hr_init_qp_meta(context_t *ctx, kvs_t* kvs)
                      "send commits", "recv commits");
 
 
-  hr_qp_meta_mfs(r_qp_meta_mfs(ctx, spl_handle);
+  hr_qp_meta_mfs(ctx, kvs);
   hr_init_send_fifos(ctx);
 }
 
