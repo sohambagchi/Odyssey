@@ -35,8 +35,13 @@
 #include <stdbool.h>
 
 #include "od_top_prot_sel.h"
-
-
+#include "default_data_config.h"
+#include "splinterdb.h"
+#include "bplus.h"
+#define DB_FILE_NAME    "splinterdb_intro_db"
+#define USER_MAX_KEY_SIZE ((int)100)
+#define DB_FILE_SIZE_MB 1024 // Size of SplinterDB device; Fixed when created
+#define CACHE_SIZE_MB   64   // Size of cache; can be changed across boots
 
 // Stats thread
 _Noreturn void *print_stats(void*);
