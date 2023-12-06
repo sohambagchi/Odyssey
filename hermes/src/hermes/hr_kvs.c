@@ -433,9 +433,6 @@ static inline void handle_trace_reqs_stb(context_t *ctx, splinterdb *spl_handle,
         assert(0);
     }
 }
-#endif /* if USE_SPLINTERDB */
-
-#if USE_BPLUS
 
 inline void hr_sdb_batch_op_invs(context_t *ctx, splinterdb* spl_handle) {
     hr_ctx_t *hr_ctx = (hr_ctx_t *) ctx->appl_ctx;
@@ -452,6 +449,11 @@ inline void hr_sdb_batch_op_invs(context_t *ctx, splinterdb* spl_handle) {
         sdb_hr_rem_inv(ctx, spl_handle, inv_mes[op_i], invs[op_i]);
     }
 }
+#endif /* if USE_SPLINTERDB */
+
+#if USE_BPLUS
+
+
 
 // Binding the Btree commands to the KVS
 
