@@ -35,7 +35,9 @@ static uint8_t compute_opcode(struct opcode_info *opc_info, uint *seed)
   if (!is_rmw) {
     is_update = rand() % 1000 < write_ratio; //rand_r(seed) % 1000 < WRITE_RATIO;
     is_sc = rand() % 1000 < SC_RATIO; //rand_r(seed) % 1000 < SC_RATIO;
+#if USE_SPLINTERDB || USE_BPLUS    
     is_range = rand() % 1000 < RANGE_RATIO;
+    #endif
   }
 
   if (is_rmw) {

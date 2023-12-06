@@ -337,6 +337,8 @@ _Noreturn inline void hr_main_loop(context_t *ctx, kvs_t *kvs)
   // TODO: based on if def, change parameter to functions.
   assert (USE_BPLUS == 1 || USE_SPLINTERDB == 1 || USE_MICA == 1);
   if (ctx->t_id == 0) my_printf(yellow, "Hermes main loop \n");
+#if ENABLE_METRICS
+  
   char * file_path;
 #if USE_BPLUS
   file_path= "/mnt/mydisk/stats/bplus/stats_90_%d.txt"; 
@@ -355,11 +357,16 @@ _Noreturn inline void hr_main_loop(context_t *ctx, kvs_t *kvs)
         fprintf(stderr, "Unable to open file for writing\n");
         return;
     }
+  #endif /* if ENABLE_METRICS */
   while(true) {
+#if ENABLE_METRICS
+    
     clock_gettime(CLOCK_REALTIME, &start);
+    #endif /* if ENABLE_METRICS */
     hr_batch_from_trace_to_KVS(ctx, kvs);
-	  clock_gettime(CLOCK_REALTIME, &start);
-    clock_gettime(CLOCK_REALTIME, &end);
+#if ENABLE_METRICS
+    	  clock_gettime(CLOCK_REALTIME, &end);
+    #endif
     ctx_send_broadcasts(ctx, INV_QP_ID);
     ctx_poll_incoming_messages(ctx, INV_QP_ID);
     od_send_acks(ctx, ACK_QP_ID);
@@ -367,7 +374,10 @@ _Noreturn inline void hr_main_loop(context_t *ctx, kvs_t *kvs)
     ctx_send_broadcasts(ctx, COM_QP_ID);
     ctx_poll_incoming_messages(ctx, COM_QP_ID);
     hr_commit_writes(ctx);
+#if ENABLE_METRICS
+    
       double elapsed_time = (end.tv_sec - start.tv_sec) + 1e-9 * (end.tv_nsec - start.tv_nsec);
       fprintf(file, "%d : %e\n", ctx->t_id, elapsed_time);
+    #endif /* if ENABLE_METRICS */
   }
 }
