@@ -160,11 +160,8 @@ static inline void hr_commit_writes(context_t *ctx)
   }
 
   if (write_num > 0) {
-<<<<<<< HEAD
      //apply_writes(ctx, ptrs_to_w_rob, write_num);
-=======
     // apply_writes(ctx, ptrs_to_w_rob, write_num);
->>>>>>> e53b2ce5768b90d189d132788da2c38981889786
     if (local_op_i > 0) {
       hr_ctx->all_sessions_stalled = false;
       ctx_insert_commit(ctx, COM_QP_ID, local_op_i, hr_ctx->committed_w_id[ctx->m_id]);
