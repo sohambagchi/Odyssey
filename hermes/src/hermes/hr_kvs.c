@@ -791,7 +791,6 @@ static inline void bt_range_query(context_t *ctx, bp_db_t *tree, ctx_trace_op_t 
          hr_ctx->ptrs_to_inv->polled_invs = (uint16_t) write_i;
  }
 
-#endif /* if USE_BPLUS */
 //  inline void hr_bt_batch_op_invs(context_t *ctx, BtDb *bt) {
  inline void hr_bt_batch_op_invs(context_t *ctx, bp_db_t* tree) {
      hr_ctx_t *hr_ctx = (hr_ctx_t *) ctx->appl_ctx;
@@ -808,3 +807,5 @@ static inline void bt_range_query(context_t *ctx, bp_db_t *tree, ctx_trace_op_t 
          bt_hr_rem_inv(ctx, tree, inv_mes[op_i], invs[op_i]);
      }
  }
+#endif /* if USE_BPLUS */
+
