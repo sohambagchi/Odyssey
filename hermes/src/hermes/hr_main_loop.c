@@ -3,7 +3,6 @@
 //
 
 #include "hr_inline_util.h"
-<<<<<<< HEAD
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
@@ -15,14 +14,6 @@
 #define USER_MAX_KEY_SIZE ((int)100)
 #define DB_FILE_SIZE_MB 1024 // Size of SplinterDB device; Fixed when created
 #define CACHE_SIZE_MB   64   // Size of cache; can be changed across boots
-bool has_run = false;
-splinterdb *spl_handle;
-=======
-// #include "btree2v.h"
-#include "bplus.h"
-#include <time.h>
-#include <stdio.h>
->>>>>>> e53b2ce5768b90d189d132788da2c38981889786
 
 static inline void fill_inv(hr_inv_t *inv,
                             ctx_trace_op_t *op,
