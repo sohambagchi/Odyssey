@@ -330,7 +330,7 @@ _Noreturn inline void hr_main_loop(context_t *ctx, bp_db_t* tree)
   if (ctx->t_id == 0) my_printf(yellow, "Hermes main loop \n");
   struct timespec start, end;
   char file_name[100];
-    sprintf(file_name, "/mnt/mydisk/stats/bplus/stats_90_%d.txt", ctx->t_id);
+    sprintf(file_name, "/mnt/mydisk/stats/range/bplus/stats_90_%d.txt", ctx->t_id);
     FILE *file = fopen(file_name, "w+");
     if (file == NULL) {
         fprintf(stderr, "Unable to open file for writing\n");
