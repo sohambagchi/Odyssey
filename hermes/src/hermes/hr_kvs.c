@@ -55,6 +55,8 @@ static inline void init_w_rob_on_loc_inv(context_t *ctx,
     fifo_increm_capacity(hr_ctx->loc_w_rob);
 }
 
+#if USE_SPLINTERDB
+
 static inline void sdb_init_w_rob_on_loc_inv(context_t *ctx, splinterdb* spl_handle,
                                         ctx_trace_op_t *op, uint64_t new_version, uint32_t write_i) {
     hr_ctx_t *hr_ctx = (hr_ctx_t *) ctx->appl_ctx;
@@ -78,6 +80,7 @@ static inline void sdb_init_w_rob_on_loc_inv(context_t *ctx, splinterdb* spl_han
     fifo_increm_capacity(hr_ctx->loc_w_rob);
 }
 
+#endif /* if USE_SPLINTERDB */
 
 static inline void init_w_rob_on_rem_inv(context_t *ctx,
                                          mica_op_t *kv_ptr,
@@ -111,6 +114,8 @@ static inline void init_w_rob_on_rem_inv(context_t *ctx,
     fifo_incr_push_ptr(&hr_ctx->w_rob[inv_mes->m_id]);
 }
 
+#if USE_SPLINTERDB
+
 static inline void sdb_init_w_rob_on_rem_inv(context_t * ctx, splinterdb* spl_handle,
                                              hr_inv_mes_t *inv_mes, hr_inv_t *inv) {
     hr_ctx_t *hr_ctx = (hr_ctx_t *) ctx->appl_ctx;
@@ -136,6 +141,7 @@ static inline void sdb_init_w_rob_on_rem_inv(context_t * ctx, splinterdb* spl_ha
     fifo_incr_push_ptr(&hr_ctx->w_rob[inv_mes->m_id]);
 }
 
+#endif /* if USE_SPLINTERDB */
 static inline void insert_buffered_op(context_t *ctx,
                                       mica_op_t *kv_ptr,
                                       ctx_trace_op_t *op,
@@ -161,6 +167,8 @@ static inline void insert_buffered_op(context_t *ctx,
     fifo_increm_capacity(hr_ctx->buf_ops);
 }
 
+#if USE_SPLINTERDB
+
 static inline void sdb_insert_buffered_ops(context_t *ctx, splinterdb* spl_handle, ctx_trace_op_t *op, bool inv) {
     hr_ctx_t *hr_ctx = (hr_ctx_t *) ctx->appl_ctx;
     buf_op_t *buf_op = (buf_op_t *) get_fifo_push_slot(hr_ctx->buf_ops);
@@ -178,6 +186,7 @@ static inline void sdb_insert_buffered_ops(context_t *ctx, splinterdb* spl_handl
     fifo_increm_capacity(hr_ctx->buf_ops);
 }
 
+#endif /* if USE_SPLINTERDB */
 ///* ---------------------------------------------------------------------------
 ////------------------------------ REQ PROCESSING -----------------------------
 ////---------------------------------------------------------------------------*/
@@ -223,6 +232,7 @@ static inline void hr_local_inv(context_t *ctx,
     }
 }
 
+#if USE_SPLINTERDB
 static inline void stbetree_insert(context_t *ctx, splinterdb* spl_handle, ctx_trace_op_t *op, uint64_t new_version,
                                    uint32_t *write_i) {
     bool success = false;
@@ -321,7 +331,7 @@ static inline void stbetree_read(context_t *ctx, splinterdb* spl_handle, ctx_tra
         sdb_insert_buffered_ops(ctx, spl_handle, op, false);
     }
 }
-
+#endif
 static inline void hr_rem_inv(context_t *ctx,
                               mica_op_t *kv_ptr,
                               hr_inv_mes_t *inv_mes,
@@ -351,9 +361,12 @@ static inline void hr_rem_inv(context_t *ctx,
     init_w_rob_on_rem_inv(ctx, kv_ptr, inv_mes, inv, inv_applied);
 }
 
+#if USE_SPLINTERDB
+
 static inline void sdb_hr_rem_inv(context_t *ctx, splinterdb* spl_handle, hr_inv_mes_t* inv_mes, hr_inv_t *inv) {
     sdb_init_w_rob_on_rem_inv(ctx, spl_handle, inv_mes, inv);
 }
+#endif /* if USE_SPLINTERDB */
 
 
 static inline void hr_loc_read(context_t *ctx,
@@ -404,6 +417,8 @@ static inline void handle_trace_reqs(context_t *ctx,
     }
 }
 
+#if USE_SPLINTERDB
+
 static inline void handle_trace_reqs_stb(context_t *ctx, splinterdb *spl_handle, ctx_trace_op_t *op,
                                          uint32_t *write_i, uint16_t op_i) {
     if (op->opcode == KVS_OP_GET) {
@@ -418,6 +433,7 @@ static inline void handle_trace_reqs_stb(context_t *ctx, splinterdb *spl_handle,
         assert(0);
     }
 }
+#endif /* if USE_SPLINTERDB */
 
 ///* ---------------------------------------------------------------------------
 ////------------------------------ KVS_API -----------------------------
@@ -487,6 +503,8 @@ inline void hr_KVS_batch_op_trace(context_t *ctx, uint16_t op_num, kvs_t* kvs)
 
 }
 
+#if USE_SPLINTERDB
+
 inline void hr_sdb_batch_op_trace(context_t *ctx, uint16_t op_num, splinterdb* spl_handle) {
     hr_ctx_t *hr_ctx = (hr_ctx_t*) ctx->appl_ctx;
     ctx_trace_op_t *op = hr_ctx->ops;
@@ -511,6 +529,7 @@ inline void hr_sdb_batch_op_trace(context_t *ctx, uint16_t op_num, splinterdb* s
     if (!INSERT_WRITES_FROM_KVS)
         hr_ctx->ptrs_to_inv->polled_invs = (uint16_t) write_i;
 }
+#endif /* if USE_SPLINTERDB */
 
 
 inline void hr_KVS_batch_op_invs(context_t *ctx, kvs_t* kvs)
@@ -551,6 +570,8 @@ inline void hr_KVS_batch_op_invs(context_t *ctx, kvs_t* kvs)
   }
   #endif /* if USE_SPLINTERDB */
 }
+
+#if USE_BPLUS
 
 inline void hr_sdb_batch_op_invs(context_t *ctx, splinterdb* spl_handle) {
     hr_ctx_t *hr_ctx = (hr_ctx_t *) ctx->appl_ctx;
@@ -770,6 +791,7 @@ static inline void bt_range_query(context_t *ctx, bp_db_t *tree, ctx_trace_op_t 
          hr_ctx->ptrs_to_inv->polled_invs = (uint16_t) write_i;
  }
 
+#endif /* if USE_BPLUS */
 //  inline void hr_bt_batch_op_invs(context_t *ctx, BtDb *bt) {
  inline void hr_bt_batch_op_invs(context_t *ctx, bp_db_t* tree) {
      hr_ctx_t *hr_ctx = (hr_ctx_t *) ctx->appl_ctx;
