@@ -60,7 +60,6 @@ void hr_qp_meta_mfs(context_t *ctx, kvs_t* kvs)
   mfs[INV_QP_ID].send_helper = send_invs_helper;
   mfs[INV_QP_ID].insert_helper = insert_inv_help;
   mfs[INV_QP_ID].recv_kvs = hr_KVS_batch_op_invs; 
-#endif /* if USE_MICA */
   mfs[ACK_QP_ID].recv_handler = ack_handler;
   mfs[ACK_QP_ID].send_helper = send_acks_helper;
 
