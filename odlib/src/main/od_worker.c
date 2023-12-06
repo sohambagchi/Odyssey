@@ -21,7 +21,6 @@ void *worker(void *arg)
 #if USE_BPLUS
   bp_db_t tree;
   int ret = bp_open(&tree, "bplus.bp");
-
   if (ret != 0) {
       printf("Unable to create bplustree instance\n");
       return;
@@ -76,11 +75,11 @@ void *worker(void *arg)
       "%d sessions \n", t_id, SESSIONS_PER_THREAD);
 
   ///
-  main_loop(ctx, spl_handle);
-  // TOOD: fix
-  main_loop(ctx, &tree);
-
+  main_loop(ctx, kvs);
+#if USE_BPLUS
+  
     bp_close(&tree);
+  #endif /* if USE_BPLUS */
 
   return NULL;
 }

@@ -19,17 +19,19 @@
 
 void *worker(void *arg)
 {
+  kvs_t *kvs = (kvs_t)malloc(sizeof(kvs_t));
+#if USE_BPLUS
+  
     bp_db_t tree;
     int ret = bp_open(&tree, "bplus.bp");
-  // BtDb *bt = new BtDb();
-  // BtDb *bt = (BtDb*)malloc(sizeof(BtDb));
-  // bp_db_t *tree = new bp_db_t();
 
     if (ret != 0) {
         printf("Unable to create bplustree instance\n");
         return;
     }
   printf("Successfully created Btree instance\n");
+  kvs->tree=tree;
+#endif 
 
   struct thread_params params = *(struct thread_params *) arg;
   uint16_t t_id = (uint16_t) params.id;
@@ -39,7 +41,8 @@ void *worker(void *arg)
               machine_id);
     if (ENABLE_MULTICAST) my_printf(cyan, "MULTICAST IS ENABLED \n");
   }
-
+#if USE_SPLINTERDB
+  
     data_config splinter_data_cfg;
     default_data_config_init(USER_MAX_KEY_SIZE, &splinter_data_cfg);
     splinterdb_config splinterdb_cfg;
@@ -51,13 +54,14 @@ void *worker(void *arg)
     splinterdb *spl_handle = NULL; // To a running SplinterDB instance
     int rc = splinterdb_create(&splinterdb_cfg, &spl_handle);
     printf("Created SplinterDB instance, dbname '%s'.\n\n", DB_FILE_NAME);
+   kvs->spl_handle = spl_handle;
+#endif /* if USE_SPLINTERDB */
     context_t *ctx = create_ctx((uint8_t) machine_id,
                               (uint16_t) params.id,
                               (uint16_t) QP_NUM,
                               local_ip);
   // todo: create an instance of splinterdb here
-    appl_init_qp_meta(ctx, spl_handle);
- appl_init_qp_meta(ctx, tree);
+    appl_init_qp_meta(ctx, kvs);
   // TODO: fix
  set_up_ctx(ctx);
 
@@ -77,11 +81,10 @@ void *worker(void *arg)
       "%d sessions \n", t_id, SESSIONS_PER_THREAD);
 
   ///
-  main_loop(ctx, spl_handle);
-  printf("prnit");
-  // TODO: fix
-  main_loop(ctx, &tree);
-
-    bp_close(&tree);
+  main_loop(ctx, kvs);
+#if USE_BPLUS
+  
+  bp_close(&tree);
+  #endif /* if USE_BPLUS */
   return NULL;
 };
