@@ -15,20 +15,9 @@
 #define DB_FILE_SIZE_MB 1024 // Size of SplinterDB device; Fixed when created
 #define CACHE_SIZE_MB   64
 
-struct kvs_wrapper {
-#if USE_MICA 
-  
-#endif
-#if USE_BPLUS
-  bp_db_t tree;
-#endif         
-#if USE_SPLINTERDB
-  splinterdb* spl_handle;
-#endif
-} kvs_wrapper_t;/* if USE_SPLINTERDB */
-
 void *worker(void *arg)
 {
+  kvs_t *kvs = (kvs_t*)malloc(sizeof(kvs_t));
 #if USE_BPLUS
   bp_db_t tree;
   int ret = bp_open(&tree, "bplus.bp");
@@ -38,6 +27,7 @@ void *worker(void *arg)
       return;
   }
   printf("Successfully created Btree instance\n");
+  kvs->tree = tree;
 #endif /* ifdef  USE_BPLUS */
 
 #if USE_SPLINTERDB
@@ -52,6 +42,7 @@ void *worker(void *arg)
   splinterdb *spl_handle = NULL; // To a running SplinterDB instance
   int rc = splinterdb_create(&splinterdb_cfg, &spl_handle);
   printf("Created SplinterDB instance (worker), dbname '%s'.\n\n", DB_FILE_NAME);
+  kvs->spl_handle = spl_handle;
 #endif /* if USE_SPLINTERDB */
   struct thread_params params = *(struct thread_params *) arg;
   uint16_t t_id = (uint16_t) params.id;
@@ -62,12 +53,12 @@ void *worker(void *arg)
     if (ENABLE_MULTICAST) my_printf(cyan, "MULTICAST IS ENABLED \n");
   }
 
+
   context_t *ctx = create_ctx((uint8_t) machine_id,
                               (uint16_t) params.id,
                               (uint16_t) QP_NUM,
                               local_ip);
- appl_init_qp_meta(ctx, spl_handle);
-  appl_init_qp_meta(ctx, &tree);
+ appl_init_qp_meta(ctx, kvs);
 
  set_up_ctx(ctx);
 

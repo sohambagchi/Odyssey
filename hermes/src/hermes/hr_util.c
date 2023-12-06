@@ -3,12 +3,8 @@
 //
 
 #include "hr_util.h"
-<<<<<<< HEAD
 #include "splinterdb.h"
-=======
-// #include "btree2v.h"
 #include "bplus.h"
->>>>>>> e53b2ce5768b90d189d132788da2c38981889786
 
 void hr_static_assert_compile_parameters()
 {
@@ -63,13 +59,6 @@ void hr_qp_meta_mfs(context_t *ctx, kvs_t* kvs)
   mfs[INV_QP_ID].recv_handler = inv_handler;
   mfs[INV_QP_ID].send_helper = send_invs_helper;
   mfs[INV_QP_ID].insert_helper = insert_inv_help;
-#if USE_SPLINTERDB
-  mfs[INV_QP_ID].recv_kvs = hr_sdb_batch_op_invs; 
-#endif
-#if USE_BPLUS
-  mfs[INV_QP_ID].recv_kvs = hr_bt_batch_op_invs;
-#endif
-#if USE_MICA
   mfs[INV_QP_ID].recv_kvs = hr_KVS_batch_op_invs; 
 #endif /* if USE_MICA */
   mfs[ACK_QP_ID].recv_handler = ack_handler;

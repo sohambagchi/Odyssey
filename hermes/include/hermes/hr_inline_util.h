@@ -39,9 +39,6 @@ bool hr_commit_handler(context_t *ctx);
 ////------------------------------MAIN LOOP -----------------------------
 ////---------------------------------------------------------------------------*/
 
-_Noreturn void hr_main_loop(context_t *ctx, splinterdb *spl_handle);
-// _Noreturn void hr_main_loop(context_t *ctx, BtDb *bt);
-// TODO: fix
-_Noreturn void hr_main_loop(context_t *ctx, bp_db_t* tree);
+_Noreturn void hr_main_loop(context_t *ctx, kvs_t *kvs);
 
 #endif //ODYSSEY_HR_INLINE_UTIL_H
