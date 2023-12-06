@@ -83,4 +83,3 @@ void *worker(void *arg)
 
   return NULL;
 }
-}
