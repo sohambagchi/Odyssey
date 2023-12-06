@@ -651,7 +651,7 @@ static inline void bt_range_query(context_t *ctx, bp_db_t *tree, ctx_trace_op_t 
     char* start = (char*)(op->value_to_read);
     char* end = (char*)(op->value_to_read + 16);
     bp_range_cb cb_value;
-    int return_values_from_range_query = bp_get_ranges(tree, start, end, cb_value);
+  int return_values_from_range_query = bp_get_ranges(tree, start, end, NULL, NULL);
 
      //! handling scenarios where key does or does not exist
     //  success = val == op->value_to_read ? false : true;
