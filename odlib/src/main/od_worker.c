@@ -20,7 +20,7 @@ void *worker(void *arg)
   kvs_t *kvs = (kvs_t*)malloc(sizeof(kvs_t));
 #if USE_BPLUS
   bp_db_t tree;
-  int ret = bp_open(&tree, "bplus.bp");
+  int ret = bp_open(&tree, "/mnt/mydisk/Odyssey/bplus.bp");
   if (ret != 0) {
       printf("Unable to create bplustree instance\n");
       return;
