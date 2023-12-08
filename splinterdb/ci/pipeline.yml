@@ -1,0 +1,191 @@
+#! Copyright 2018-2021 VMware, Inc.
+#! SPDX-License-Identifier: Apache-2.0
+
+#! A ytt template for our Concourse CI pipeline
+#! - https://carvel.dev/ytt
+#! - https://concourse-ci.org
+#!
+#! Use the apply-pipeline.sh script to deploy
+
+#@ load("resources.lib.yml",
+#@         "resource_container_image",
+#@         "resource_splinterdb_git_repo",
+#@ )
+
+#@ load("sequences.lib.yml",
+#@         "sequence_pr_build_test_image",
+#@         "sequence_pr_test",
+#@         "sequence_pr_clang_format",
+#@         "sequence_pr_shell_scripts",
+#@ )
+
+#@ load("jobs.lib.yml",
+#@         "job_recreate_image",
+#@         "job_publish_container",
+#@         "job_test",
+#@         "job_pr_check",
+#@ )
+
+#! List of branches to cover with tests
+#! The first one is special, it is used for publishing container images to the public Docker registry
+#@ branches = ["main", "shmem"]
+---
+
+resource_types:
+#! Attempt to fix a problem with image pulls failing
+#! see: https://vmware.slack.com/archives/CEUC18KQA/p1689754476227109?thread_ts=1689753436.440569&cid=CEUC18KQA
+- name: registry-image
+  type: registry-image
+  source:
+    repository: harbor-repo.vmware.com/dockerhub-proxy-cache/concourse/registry-image-resource
+    tag: 1.9.0
+
+#! Enables GitHub status on commits
+- name: cogito
+  type: registry-image
+  check_every: 12h
+  source:
+    repository: harbor-repo.vmware.com/dockerhub-proxy-cache/pix4d/cogito
+    tag: "0.5.1"
+
+#! Enables GitHub status on pull requests
+- name: pull-request
+  type: registry-image
+  source:
+    #! this image is built from https://github.com/cloudfoundry-community/github-pr-resource
+    #! which is maintained by VMware staff
+    repository: harbor-repo.vmware.com/dockerhub-proxy-cache/loggregatorbot/github-pr-resource
+    tag: "latest"
+
+resources:
+
+#! Container images for the build environment
+- #@ resource_container_image("build-env", "latest")
+
+#! Container images for the run environment
+- #@ resource_container_image("run-env", "latest")
+
+#! Container image with the final built splinterdb SO file and test binary
+- #@ resource_container_image("splinterdb", "clang")
+- #@ resource_container_image("splinterdb", "gcc")
+- #@ resource_container_image("splinterdb", "latest")
+
+#! Source code for the container image holding the build environment
+- #@ resource_splinterdb_git_repo("build-env-source", branches[0], { "paths": [ "Dockerfile.build-env" ] })
+
+#! Source code for the container image holding the run environment
+- #@ resource_splinterdb_git_repo("run-env-source", branches[0], { "paths": [ "Dockerfile.run-env" ] })
+
+#@ for b in branches:
+- #@ resource_splinterdb_git_repo("branch-" + b, b, { "ignore_paths": [ "ci" ] })
+#@ end
+
+#! Set status on individual commits in the github repo
+- name: github-commit-status
+  type: cogito
+  check_every: 1h
+  source:
+    owner: vmware
+    repo: splinterdb
+    access_token: ((github-bot-access-token))
+
+#@ for b in branches:
+#! Discover pull requests and set status on them
+- name: #@ "github-prs-" + b
+  type: pull-request
+  check_every: 2m
+  source:
+    repository: vmware/splinterdb
+    access_token: ((github-bot-access-token))
+    base_branch: #@ b
+    labels: ["ok-to-test"]
+#@ end
+
+#! Define nightly timer resource
+#! Ref: https://concourse-ci.org/time-trigger-example.html
+#! Ref: https://github.com/concourse/time-resource
+- name: nightly-timer
+  type: time
+  source:
+    start: 12:00 AM
+    stop: 1:00 AM
+    location: America/Los_Angeles
+
+#! List of jobs
+jobs:
+
+#! Create the container images that hold the build-time and run-time environments
+- #@ job_recreate_image("build-env")
+- #@ job_recreate_image("run-env")
+
+#! branches[0] is used for publishing container images
+- #@ job_publish_container("clang", branches[0])
+- #@ job_publish_container("gcc", branches[0], also_latest=True)
+
+#@ for b in branches:
+
+#! Commits to covered branches will build and test
+- #@ job_test("clang", b, is_debug=True)
+- #@ job_test("gcc", b, is_debug=True)
+- #@ job_test("gcc", b, sanitize="asan")
+- #@ job_test("clang", b, sanitize="msan")
+
+#! Nightly jobs which take too long to run per-PR
+- #@ job_test("gcc", b, trigger="nightly", test_nightly=True)
+
+
+#! Pull requests to a covered branch
+#! must first pass a fast stage and then fan out to a slow stage
+#@ stage_one = [b + "-pr-quick-check", b + "-pr-clang-format", b + "-pr-shell-scripts"]
+- #@ job_pr_check("clang-format", b, sequence_pr_clang_format(), description="check C source formatting")
+- #@ job_pr_check("shell-scripts", b, sequence_pr_shell_scripts(), description="lint and format any shell scripts")
+- #@ job_pr_check("quick-check", b, sequence_pr_test("clang", quick=True), description="build and run fast unit tests")
+
+#! second stage of pipeline, only triggers if all of the first-stage passes
+- #@ job_pr_check("clang", b, sequence_pr_build_test_image("clang"), depends_on=stage_one, description="release build and test image")
+- #@ job_pr_check("gcc", b, sequence_pr_build_test_image("gcc"), depends_on=stage_one, description="release build and test image")
+- #@ job_pr_check("debug-clang", b, sequence_pr_test("clang"), depends_on=stage_one, description="debug build and test")
+- #@ job_pr_check("debug-gcc", b, sequence_pr_test("gcc"), depends_on=stage_one, description="debug build and test")
+
+- #@ job_pr_check("asan", b, sequence_pr_test("gcc", sanitize="asan", is_debug=False), depends_on=stage_one, description="asan build and test")
+- #@ job_pr_check("msan", b, sequence_pr_test("clang", sanitize="msan", is_debug=False), depends_on=stage_one, description="msan build and test")
+
+#@ end  #! for loop over branches
+
+
+#! List of CI-groups of jobs
+groups:
+
+#@ for b in branches:
+- name: #@ b + "_commits"
+  jobs:
+  #@ if b == branches[0]:
+  - #@ b + "-push-clang"
+  - #@ b + "-push-gcc"
+  #@ end
+  - #@ b + "-debug-clang"
+  - #@ b + "-debug-gcc"
+  - #@ b + "-asan-gcc"
+  - #@ b + "-msan-clang"
+
+- name: #@ b + "_pull_requests"
+  jobs:
+  - #@ b + "-pr-quick-check"
+  - #@ b + "-pr-clang"
+  - #@ b + "-pr-debug-clang"
+  - #@ b + "-pr-gcc"
+  - #@ b + "-pr-debug-gcc"
+  - #@ b + "-pr-clang-format"
+  - #@ b + "-pr-shell-scripts"
+  - #@ b + "-pr-asan"
+  - #@ b + "-pr-msan"
+
+- name: #@ b + "_nightly"
+  jobs:
+  - #@ b + "-nightly-test-gcc"
+#@ end
+
+- name: env_images
+  jobs:
+  - recreate-build-env
+  - recreate-run-env

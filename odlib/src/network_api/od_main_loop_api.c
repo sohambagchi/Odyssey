@@ -439,7 +439,7 @@ forceinline void create_inputs_of_op(uint8_t **value_to_write, uint8_t **value_t
                                      uint32_t *real_val_len, uint8_t *opcode,
                                      uint32_t *index_to_req_array,
                                      mica_key_t *key, uint8_t *op_value, trace_t *trace,
-                                     int working_session, uint16_t t_id)
+                                     int working_session, uint16_t t_id, uint8_t **range_start, uint8_t **range_end)
 {
   client_op_t *if_cl_op = NULL;
   if (ENABLE_CLIENTS) {
@@ -454,6 +454,7 @@ forceinline void create_inputs_of_op(uint8_t **value_to_write, uint8_t **value_t
     (*real_val_len) = if_cl_op->val_len;
     (*value_to_write) = if_cl_op->value_to_write;
     (*value_to_read) = if_cl_op->value_to_read;
+    // TODO: modification to accomodate ranges.
   }
   else {
     (*opcode) = trace->opcode;
@@ -461,6 +462,8 @@ forceinline void create_inputs_of_op(uint8_t **value_to_write, uint8_t **value_t
     (*real_val_len) = (uint32_t) VALUE_SIZE;
     (*value_to_write) = op_value;
     (*value_to_read) = op_value;
+    (*range_start) = op_value;
+    (*range_end) = op_value + 10;
     if (*opcode == FETCH_AND_ADD) *(uint64_t *) op_value = 1;
   }
 }
@@ -469,7 +472,7 @@ forceinline void create_inputs_of_op(uint8_t **value_to_write, uint8_t **value_t
 static inline void od_check_op(ctx_trace_op_t *op)
 {
   if (ENABLE_ASSERTIONS) {
-    check_state_with_allowed_flags(3, op->opcode, KVS_OP_PUT, KVS_OP_GET);
+    check_state_with_allowed_flags(4, op->opcode, KVS_OP_PUT, KVS_OP_GET, KVS_OP_RANGE);
     assert(op->real_val_len > 0);
     assert(op->index_to_req_array < PER_SESSION_REQ_NUM);
     assert(op->session_id < SESSIONS_PER_THREAD);
@@ -485,7 +488,7 @@ forceinline void  od_fill_trace_op(context_t *ctx,
 {
   create_inputs_of_op(&op->value_to_write, &op->value_to_read, &op->real_val_len,
                       &op->opcode, &op->index_to_req_array,
-                      &op->key, ctx->ctx_tmp->tmp_val, trace_op, working_session, ctx->t_id);
+                      &op->key, ctx->ctx_tmp->tmp_val, trace_op, working_session, ctx->t_id, &op->range_start, &op->range_end);
 
   od_check_op(op);
 

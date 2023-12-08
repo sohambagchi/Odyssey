@@ -3,6 +3,17 @@
 //
 
 #include "hr_inline_util.h"
+#include <stdio.h>
+#include <string.h>
+#include <time.h>
+
+#include "default_data_config.h"
+#include "splinterdb.h"
+
+#define DB_FILE_NAME    "splinterdb_intro_db"
+#define USER_MAX_KEY_SIZE ((int)100)
+#define DB_FILE_SIZE_MB 1024 // Size of SplinterDB device; Fixed when created
+#define CACHE_SIZE_MB   64   // Size of cache; can be changed across boots
 
 static inline void fill_inv(hr_inv_t *inv,
                             ctx_trace_op_t *op,
@@ -17,7 +28,7 @@ static inline void fill_inv(hr_inv_t *inv,
 
 
 
-static inline void hr_batch_from_trace_to_KVS(context_t *ctx)
+static inline void hr_batch_from_trace_to_KVS(context_t *ctx, kvs_t* kvs)
 {
   hr_ctx_t *hr_ctx = (hr_ctx_t *) ctx->appl_ctx;
   ctx_trace_op_t *ops = hr_ctx->ops;
@@ -37,6 +48,7 @@ static inline void hr_batch_from_trace_to_KVS(context_t *ctx)
   /// main loop
   while (op_i < HR_TRACE_BATCH && !passed_over_all_sessions) {
 
+    // TODO: check
     od_fill_trace_op(ctx, &trace[hr_ctx->trace_iter], &ops[op_i], working_session);
     hr_ctx->stalled[working_session] = true;
 
@@ -53,7 +65,7 @@ static inline void hr_batch_from_trace_to_KVS(context_t *ctx)
   }
   hr_ctx->last_session = (uint16_t) working_session;
   t_stats[ctx->t_id].total_reqs += op_i;
-  hr_KVS_batch_op_trace(ctx, op_i);
+    hr_KVS_batch_op_trace(ctx, op_i,  kvs);
   if (!INSERT_WRITES_FROM_KVS) {
     for (int i = 0; i < hr_ctx->ptrs_to_inv->polled_invs; ++i) {
       od_insert_mes(ctx, INV_QP_ID, (uint32_t) INV_SIZE, 1,
@@ -97,6 +109,7 @@ static inline void apply_writes(context_t *ctx,
         }
 
       }
+        kv_ptr->state = HR_V;
       unlock_seqlock(&kv_ptr->seqlock);
     }
   }
@@ -147,7 +160,8 @@ static inline void hr_commit_writes(context_t *ctx)
   }
 
   if (write_num > 0) {
-    apply_writes(ctx, ptrs_to_w_rob, write_num);
+     //apply_writes(ctx, ptrs_to_w_rob, write_num);
+    // apply_writes(ctx, ptrs_to_w_rob, write_num);
     if (local_op_i > 0) {
       hr_ctx->all_sessions_stalled = false;
       ctx_insert_commit(ctx, COM_QP_ID, local_op_i, hr_ctx->committed_w_id[ctx->m_id]);
@@ -318,11 +332,41 @@ inline bool hr_commit_handler(context_t *ctx)
 }
 
 
-_Noreturn inline void hr_main_loop(context_t *ctx)
+_Noreturn inline void hr_main_loop(context_t *ctx, kvs_t *kvs)
 {
+  // TODO: based on if def, change parameter to functions.
+  assert (USE_BPLUS == 1 || USE_SPLINTERDB == 1 || USE_MICA == 1);
   if (ctx->t_id == 0) my_printf(yellow, "Hermes main loop \n");
+#if ENABLE_METRICS
+  
+  char * file_path;
+#if USE_BPLUS
+  file_path= "/mnt/mydisk/stats/bplus/stats_90_%d.txt"; 
+#endif /* if USE_BPLUS */
+#if USE_SPLINTERDB
+  file_path = "/mnt/mydisk/stats/splinterdb/stats_90_%d.txt";
+#endif /* if USE_SPLINTERDB */
+#if USE_MICA
+  file_path = "/mnt/mydisk/stats/mica/stats_90_%d.txt";     
+#endif /* if 0 */
+  struct timespec start, end;
+  char file_name[100];
+    sprintf(file_name, file_path, ctx->t_id);
+    FILE *file = fopen(file_name, "w+");
+    if (file == NULL) {
+        fprintf(stderr, "Unable to open file for writing\n");
+        return;
+    }
+  #endif /* if ENABLE_METRICS */
   while(true) {
-    hr_batch_from_trace_to_KVS(ctx);
+#if ENABLE_METRICS
+    
+    clock_gettime(CLOCK_REALTIME, &start);
+    #endif /* if ENABLE_METRICS */
+    hr_batch_from_trace_to_KVS(ctx, kvs);
+#if ENABLE_METRICS
+    	  clock_gettime(CLOCK_REALTIME, &end);
+    #endif
     ctx_send_broadcasts(ctx, INV_QP_ID);
     ctx_poll_incoming_messages(ctx, INV_QP_ID);
     od_send_acks(ctx, ACK_QP_ID);
@@ -330,5 +374,10 @@ _Noreturn inline void hr_main_loop(context_t *ctx)
     ctx_send_broadcasts(ctx, COM_QP_ID);
     ctx_poll_incoming_messages(ctx, COM_QP_ID);
     hr_commit_writes(ctx);
+#if ENABLE_METRICS
+    
+      double elapsed_time = (end.tv_sec - start.tv_sec) + 1e-9 * (end.tv_nsec - start.tv_nsec);
+      fprintf(file, "%d : %e\n", ctx->t_id, elapsed_time);
+    #endif /* if ENABLE_METRICS */
   }
 }

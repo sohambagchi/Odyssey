@@ -24,6 +24,7 @@ static inline void update_q_info(quorum_info_t *q_info,  uint16_t *credits,
     if (i == machine_id) continue;
     rm_id = mid_to_rmid(i);
     if (credits[i] < min_credits) {
+        printf("Does the code reach here?\n");
       q_info->missing_ids[q_info->missing_num] = i;
       q_info->missing_num++;
       q_info->send_vector[rm_id] = false;

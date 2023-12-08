@@ -9,6 +9,7 @@
 #include "od_stats.h"
 #include <getopt.h>
 #include "od_kvs.h"
+#include <stdio.h>
 
 static void od_generic_static_assert_compile_parameters()
 {
@@ -170,6 +171,7 @@ static void od_generic_init_globals(int qp_num)
     for (int req_i = 0; req_i < LATENCY_TYPE_NUM; ++req_i) {
       latency_count.requests[req_i] = (uint32_t *) calloc(LATENCY_BUCKETS + 1, sizeof(uint32_t));
     }
+    printf("\nMEasuring pa\n");
     latency_count.max_req_lat = calloc(LATENCY_TYPE_NUM, sizeof(uint32_t));
     latency_count.req_meas_num = calloc(LATENCY_TYPE_NUM, sizeof(uint32_t));
   }

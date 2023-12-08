@@ -3,6 +3,8 @@
 //
 
 #include "hr_util.h"
+#include "splinterdb.h"
+#include "bplus.h"
 
 void hr_static_assert_compile_parameters()
 {
@@ -50,16 +52,14 @@ void hr_init_send_fifos(context_t *ctx)
 
 }
 
-void hr_qp_meta_mfs(context_t *ctx)
+void hr_qp_meta_mfs(context_t *ctx, kvs_t* kvs)
 {
   mf_t *mfs = calloc(QP_NUM, sizeof(mf_t));
 
   mfs[INV_QP_ID].recv_handler = inv_handler;
   mfs[INV_QP_ID].send_helper = send_invs_helper;
   mfs[INV_QP_ID].insert_helper = insert_inv_help;
-  mfs[INV_QP_ID].recv_kvs = hr_KVS_batch_op_invs;
-  //mfs[PREP_QP_ID].polling_debug = hr_debug_info_bookkeep;
-
+  mfs[INV_QP_ID].recv_kvs = hr_KVS_batch_op_invs; 
   mfs[ACK_QP_ID].recv_handler = ack_handler;
   mfs[ACK_QP_ID].send_helper = send_acks_helper;
 
@@ -79,7 +79,7 @@ void hr_qp_meta_mfs(context_t *ctx)
   free(mfs);
 }
 
-void hr_init_qp_meta(context_t *ctx)
+void hr_init_qp_meta(context_t *ctx, kvs_t* kvs)
 {
   per_qp_meta_t *qp_meta = ctx->qp_meta;
   create_per_qp_meta(&qp_meta[INV_QP_ID], MAX_INV_WRS,
@@ -105,7 +105,7 @@ void hr_init_qp_meta(context_t *ctx)
                      "send commits", "recv commits");
 
 
-  hr_qp_meta_mfs(ctx);
+  hr_qp_meta_mfs(ctx, kvs);
   hr_init_send_fifos(ctx);
 }
 

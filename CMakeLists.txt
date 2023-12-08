@@ -3,16 +3,18 @@ project(odyssey)
 
 set(odyssey_VERSION_MAJOR 1)
 
+#include_directories(/bplus-tree/include)
 
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O3 -std=gnu1x -march=native -Wno-address-of-packed-member \
--Wno-format-truncation -D_GNU_SOURCE  -g ")
+-Wno-format-truncation -D_GNU_SOURCE  -g -DSPLINTERDB_PLATFORM_DIR=platform_linux")
 #set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -O3 -std=gnu2x -flto ")
 # -g
 # -fno-omit-frame-pointer  enable the frame pointer to trace stack
 #-fno-inline
 #-fsanitize=address -fsanitize=thread
 # -fsanitize=address -fno-inline -fno-omit-frame-pointer
-
+include_directories(/splinterdb/include/splinterdb)
+link_directories(/users/sohamb/ankith/Odyssey/bplus-tree/include/)
 set(COMMON_INCLUDE_DIRS
         /usr/include/
         /usr/include/rdma
@@ -27,6 +29,10 @@ set(COMMON_INCLUDE_DIRS
         odlib/include/client_api
         odlib/include/trace
         odlib/include/protocols)
+
+set (SPLINTERDB_INCLUDE_DIRS
+        splinterdb/include/splinterdb
+        splinterdb/include/splinterdb/platform_linux)
 
 set (PAXOS_INCLUDE_DIRS
         paxos/include/cp_top/
@@ -199,6 +205,13 @@ set(CRAQ_SOURCE_FILES
         craq/include/craq/cr_generic_util.h
         craq/include/craq/cr_kvs_util.h)
 
+add_library(splinterdb SHARED IMPORTED )
+set_target_properties(splinterdb PROPERTIES IMPORTED_LOCATION splinterdb/build/release/lib/libsplinterdb.so)
+set (BTREE_INCLUDE_DIRS
+        bplus-tree/include/)
+
+add_library(btree SHARED IMPORTED)
+set_target_properties(btree PROPERTIES IMPORTED_LOCATION bplus-tree/libbplustree.so)
 
 #set(CMAKE_BUILD_TYPE Release)
 
@@ -217,7 +230,7 @@ target_include_directories(kite PUBLIC
 target_include_directories(zookeeper PUBLIC
         ${COMMON_INCLUDE_DIRS} zookeeper/include/zookeeper)
 target_include_directories(hermes PUBLIC
-        ${COMMON_INCLUDE_DIRS} hermes/include/hermes)
+        ${COMMON_INCLUDE_DIRS} ${SPLINTERDB_INCLUDE_DIRS} ${BTREE_INCLUDE_DIRS} hermes/include/hermes)
 target_include_directories(cht PUBLIC
         ${COMMON_INCLUDE_DIRS} cht/include/cht)
 target_include_directories(craq PUBLIC
@@ -232,12 +245,12 @@ set_target_properties(hermes PROPERTIES COMPILE_FLAGS -DHERMES)
 set_target_properties(cht PROPERTIES COMPILE_FLAGS -DCHT)
 set_target_properties(craq PROPERTIES COMPILE_FLAGS -DCRAQ)
 set_target_properties(paxos PROPERTIES COMPILE_FLAGS -DPAXOS)
-
-
+set_target_properties(splinterdb PROPERTIES IMPORTED_LOCATION splinterdb/build/release/lib/libsplinterdb.so)
+set_target_properties(btree PROPERTIES IMPORTED_LOCATION bplus-tree/libbplustree.so)
 target_link_libraries(derecho pthread ibverbs rt numa rdmacm)
 target_link_libraries(kite pthread ibverbs rt numa rdmacm)
 target_link_libraries(zookeeper pthread ibverbs rt numa rdmacm)
-target_link_libraries(hermes pthread ibverbs rt numa rdmacm)
+target_link_libraries(hermes pthread ibverbs rt numa rdmacm /mnt/mydisk/Odyssey/splinterdb/build/release/lib/libsplinterdb.so /users/sohamb/ankith/Odyssey/bplus-tree/libbplustree.so)
 target_link_libraries(cht pthread ibverbs rt numa rdmacm)
 target_link_libraries(craq pthread ibverbs rt numa rdmacm)
 target_link_libraries(paxos pthread ibverbs rt numa rdmacm)

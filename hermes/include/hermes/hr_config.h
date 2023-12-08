@@ -9,6 +9,8 @@
 #include "od_fifo.h"
 #include <hr_messages.h>
 #include <od_network_context.h>
+#include "splinterdb.h"
+#include "bplus.h"
 
 #define HR_W_ROB_SIZE SESSIONS_PER_THREAD
 #define HR_TRACE_BATCH SESSIONS_PER_THREAD
@@ -84,7 +86,8 @@ typedef struct w_rob {
   uint8_t acks_seen;
   uint8_t val_len;
   bool inv_applied;
-
+  splinterdb* spl_handle;
+  bp_db_t* tree;
 } hr_w_rob_t;
 
 typedef struct buf_op {
@@ -92,8 +95,11 @@ typedef struct buf_op {
   //mica_key_t key;
   //uint8_t *value_ptr;
   mica_op_t *kv_ptr;
+  splinterdb *spl_handle;
   //uint16_t sess_id;
   //uint8_t opcode;
+  // BtDb *bt;
+  bp_db_t* tree;
 } buf_op_t;
 
 typedef struct rep_ops {

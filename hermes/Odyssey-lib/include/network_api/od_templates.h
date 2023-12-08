@@ -48,7 +48,11 @@ typedef struct ctx_trace_op {
   mica_key_t key;
   uint8_t *value_to_write;
   uint8_t *value_to_read; //compare value for CAS/  addition argument for F&A
+  uint8_t *range_start;
+  uint8_t *range_end;
   uint32_t index_to_req_array;
+  uint8_t *range_start;
+  uint8_t *range_end;
   uint32_t real_val_len; // this is the value length the client is interested in
   uint16_t session_id;
   uint8_t opcode;

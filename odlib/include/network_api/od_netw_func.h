@@ -97,7 +97,7 @@ void create_inputs_of_op(uint8_t **value_to_write, uint8_t **value_to_read,
                          uint32_t *real_val_len, uint8_t *opcode,
                          uint32_t *index_to_req_array,
                          mica_key_t *key, uint8_t *op_value, trace_t *trace,
-                         int working_session, uint16_t t_id);
+                         int working_session, uint16_t t_id, uint8_t** range_start, uint8_t** range_end);
 
 
 
