@@ -40,7 +40,7 @@ In odlib/include/general\_util/od\_top.h, (lines 92 - 94), you will find 3 macro
 If you want to use SplinterDB, set that macro to 1. **Please remember that only one of these can be set to 1 at a time, or else the code will not run.**
 
 ## Future Work
-There is still room for improvement in the code. The existing Odyssey code is not the best in terms of documentation, and that can certainly be improved. A direction for potential research is integration an adaptive Be-tree and running the experiments again. Feel free to contribute!
+There is still room for improvement in the code. The existing Odyssey code is not the best in terms of documentation, and that can certainly be improved. The paths in the code currenly are hardcoded. We plan to make it such that we can get all required paths from environment variables. A direction for potential research is integration an adaptive Be-tree and running the experiments again. Feel free to contribute!
 
 
 
