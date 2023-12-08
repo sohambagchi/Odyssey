@@ -40,19 +40,73 @@ ssh-keyscan -H github.com >> ~/.ssh/known_hosts
 # git clone https://github.com/ease-lab/Hermes hermes
 # git clone git@github.com:akatsarakis/hermes-async.git hermes
 cd
+
+# Mount /dev/sdb2 as an ext4 directory
+sudo mkfs.ext4 /dev/sdb # Format
+sudo mkdir -p /mnt/mydisk # Make mount point directory
+sudo mount /dev/sdb /mnt/mydisk # Mount it
+sudo chown -R aaditya /mnt/mydisk
+chmod ug+rwx /mnt/mydisk
+mkdir /mnt/mydisk/splinterdb
+mkdir /mnt/mydisk/stats
+UUID=$(sudo blkid /dev/sdb | grep -oP 'UUID="\K[^"]+') # Get the device UUID
+echo "UUID=$UUID /mnt/mydisk ext4 defaults 0 2" | sudo tee -a /etc/fstab # Append it to FSTAB so it persists
+
+# Mount /dev/sdb2 as an ext4 directory
+sudo mkfs.ext4 /dev/sdc # Format
+sudo mkdir -p /users/aaditya/ext4 # Make mount point directory
+sudo mount /dev/sdc /users/aaditya/ext4 # Mount it
+sudo chown -R aaditya /users/aaditya/ext4
+chmod ug+rwx /users/aaditya/ext4
+UUID=$(sudo blkid /dev/sdc | grep -oP 'UUID="\K[^"]+') # Get the device UUID
+echo "UUID=$UUID /users/aaditya/ext4 ext4 defaults 0 2" | sudo tee -a /etc/fstab # Append it to FSTAB so it persists
+
+cd /users/aaditya/ext4
+
 git clone https://github.com/sohambagchi/Odyssey odyssey
 # cd odyssey ; git submodule update --init ; cd
 # tar -xvf ${ARCHIVE_NAME}
-cd odyssey ; sh ./bin/install-latest-cmake.sh ; cmake -B build
+cd odyssey ; git checkout merged_code ; sh ./bin/install-latest-cmake.sh ; cmake -B build
 # TODO ALSO copy and run install-latest-cmake.sh in n1 and then run the following
 #  cd odyssey; cmake -B build
+
+# The below lines build the .so files required for running Odyssey with B+-tree and SplinterDB
+splinterdb_folder="/users/aaditya/ext4/odyssey/splinterdb/"
+export COMPILER=gcc
+sudo apt update -y
+sudo apt install -y libaio-dev libconfig-dev libxxhash-dev $COMPILER
+export CC=$COMPILER
+export LD=$COMPILER
+cd $splinterdb_folder
+make VERBOSE=1
+cd ..
+
+# For B+-tree
+bplus_folder="/users/aaditya/ext4/odyssey/bplus-tree/"
+cd $bplus_folder
+CC=gcc
+CSTDFLAG="--std=c99 -pedantic -Wall -Wextra -Wno-unused-parameter"
+CPPFLAGS="-c -fpic -Iinclude -Iexternal/snappy"
+CPPFLAGS+=" -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64 -D_XOPEN_SOURCE=500 -D_DARWIN_C_SOURCE"
+LDFLAGS="-lpthread"
+SRC_DIR=src
+INCLUDE_DIR=include
+OBJ_DIR=obj
+
+for file in "$SRC_DIR"/*.c; do
+    base_name=$(basename "$file" .c)
+    $CC $CSTDFLAG $CPPFLAGS $LDFLAGS -I"$INCLUDE_DIR" "$file" -o "$OBJ_DIR/$base_name.o"
+done
+
+$CC -shared -o libbplustree.so "$OBJ_DIR"/*.o
+
 
 sleep 10 # if we try to init nic immediately it typically fails
 
 # Setting the ip to the ib0 might not work on the first try so repeat
 MAX_RETRIES=10
 for i in `seq 1 ${MAX_RETRIES}`; do
-  sudo ifconfig ib0 10.0.3.${HOSTNAME:5:1}/24 up
+  sudo ifconfig ib0 10.0.4.${HOSTNAME:5:1}/24 up
   if ibdev2netdev | grep "Up" ; then
     break
   fi
@@ -69,14 +123,7 @@ fi
 
 sleep 5
 
-# Mount /dev/sdb2 as an ext4 directory
-sudo mkfs.ext4 /dev/sdb # Format
-sudo mkdir -p /mnt/mydisk # Make mount point directory
-sudo mount /dev/sdb /mnt/mydisk # Mount it
-sudo chown -R sohamb /mnt/mydisk
-chmod ug+rwx /mnt/mydisk
-UUID=$(sudo blkid /dev/sdb | grep -oP 'UUID="\K[^"]+') # Get the device UUID
-echo "UUID=$UUID /mnt/mydisk ext4 defaults 0 2" | sudo tee -a /etc/fstab # Append it to FSTAB so it persists
+
 
 
 # [Optionally] For dbg ensure everything was configured properly
@@ -103,32 +150,3 @@ if [[ "${HOSTNAME:5:1}" == 1 ]]; then
     done
 fi
 
-# The below lines build the .so files required for running Odyssey with B+-tree and SplinterDB
-splinterdb_folder="../splinterdb/"
-export COMPILER=gcc
-sudo apt update -y
-sudo apt install -y libaio-dev libconfig-dev libxxhash-dev $COMPILER
-export CC=$COMPILER
-export LD=$COMPILER
-cd $splinterdb_folder
-make VERBOSE=1
-cd "-"
-
-# For B+-tree
-bplus_folder="../bplus-tree/"
-cd $bplus_folder
-CC=gcc
-CSTDFLAG="--std=c99 -pedantic -Wall -Wextra -Wno-unused-parameter"
-CPPFLAGS="-c -fpic -Iinclude -Iexternal/snappy"
-CPPFLAGS+=" -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64 -D_XOPEN_SOURCE=500 -D_DARWIN_C_SOURCE"
-LDFLAGS="-lpthread"
-SRC_DIR=src
-INCLUDE_DIR=include
-OBJ_DIR=obj
-
-for file in "$SRC_DIR"/*.c; do
-    base_name=$(basename "$file" .c)
-    $CC $CSTDFLAG $CPPFLAGS $LDFLAGS -I"$INCLUDE_DIR" "$file" -o "$OBJ_DIR/$base_name.o"
-done
-
-$CC -shared -o libbplustree.so "$OBJ_DIR"/*.o
